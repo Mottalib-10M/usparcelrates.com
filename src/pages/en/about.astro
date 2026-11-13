@@ -1,0 +1,31 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import LegalIdentity from '../../components/LegalIdentity.astro';
+import { route } from '../../i18n/routes';
+import { AUTHOR_NAME, AUTHOR_DESC, CONTACT_EMAIL } from '../../data/site-config';
+import { VALUE } from '../../content/home';
+import { KIT as K } from '../../lib/kit';
+import { profilePageSchema, breadcrumbSchema } from '../../lib/seo';
+const lang = 'en';
+const path = route('about', lang);
+const title = 'USPS Price Calculators 2027: Who Publishes This Site';
+const description = 'Who publishes these USPS price calculators for 2027, the Postal Service files behind every figure, and why the site sells no label and shows no carrier ad.';
+---
+<PageLayout title={title} description={description} lang={lang} jsonLd={[profilePageSchema({ path, lang }), breadcrumbSchema([{ name: 'Home', path: route('home', lang) }, { name: 'About', path }])]} breadcrumbs={[{ label: 'About' }]}>
+  <article class="prose prose-slate max-w-none prose-headings:font-serif">
+    <h1>About these USPS price calculators</h1>
+    <p>{AUTHOR_DESC.en}</p>
+    <h2>Why these postage calculators exist</h2>
+    <p>Someone mailing a package asks a plain question: how much, from my ZIP Code to theirs, and is there a cheaper way. The official calculator answers one service at a time and needs the shape of the box first; label sellers answer after you create an account; many price pages online still show last year's prices or leave out the fuel surcharge. In November 2026 the question had a second part: what changes on January 17, 2027.</p>
+    <p>{VALUE}</p>
+    <h2>Who publishes it</h2>
+    <p>The site is published by {AUTHOR_NAME}, a company that builds calculators on public data. It is an independent site, not the United States Postal Service and not affiliated with it. It sells no label, takes no commission, carries no affiliate link and asks for no account or contact details.</p>
+    <LegalIdentity lang={lang} />
+    <h2>What it relies on</h2>
+    <p>The Notice 123 price files of July 2026, October 2026 and January 2027 (proposed), the domestic zone chart effective {K.ZONE_EFFECTIVE} for {K.num(K.ORIGINS)} origin prefixes, the Domestic Mail Manual chapters on each service and on extra services, the Postal Service releases of March 25 and November 12, 2026, and the filings portal of the Postal Regulatory Commission.</p>
+    <h2>What it leaves out</h2>
+    <p>UPS and FedEx prices, which could not be read at their source; negotiated business prices; international mail. The <a href={route('method', lang)}>method page</a> lists every simplification and the <a href={route('editorial', lang)}>editorial policy</a> explains corrections.</p>
+    <h2>Contact</h2>
+    <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, for a price that changed or a rule we read wrong. We cannot track a package or file a claim: only the Postal Service can.</p>
+  </article>
+</PageLayout>

@@ -1,0 +1,2 @@
+# Point d appel du Domestic Zone Chart de l USPS (JSON par préfixe d origine), lu par scripts/data/build-zones.py : pas une source citée.
+https://postcalc.usps.com/DomesticZoneChart/GetZoneChart

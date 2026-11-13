@@ -1,0 +1,21 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import { route } from '../../i18n/routes';
+import { AUTHOR_NAME } from '../../data/site-config';
+const lang = 'en';
+---
+<PageLayout title="Editorial policy of US Parcel Rates: prices read at the source" description="How US Parcel Rates builds its pages: prices read in the Postal Service price files and zone chart, each with its date, nothing estimated, no carrier paying for a place." lang={lang} noindex={true} breadcrumbs={[{ label: 'Editorial policy' }]} showAuthor={false}>
+  <article class="prose prose-slate max-w-none prose-headings:font-serif">
+    <h1>Editorial policy</h1>
+    <h2>Where the figures come from</h2>
+    <p>A price enters the site only when it was read in a Notice 123 price file published by the Postal Service on Postal Explorer. A zone enters only when it was read in the official domestic zone chart. A rule, such as a weight step or the size weight, comes from the Domestic Mail Manual. Each file is stored with its address and the date it was read. Other calculators and price pages are read to see what readers ask, never to take a number.</p>
+    <h2>How pages are written</h2>
+    <p>No price is typed into the text. The prices live in two data files built from the official files, and every page computes its figures from them when the site is built, with the same engine as the calculators. A price that could not be read at its source is not shown: there are no UPS or FedEx prices on the site, because their price lists refused automated reading.</p>
+    <h2>Proposed prices</h2>
+    <p>The January 17, 2027 prices are those the Postal Service filed on November 12, 2026, plus the 11% fuel surcharge it announced the same day. They are labelled as proposed everywhere until the Postal Regulatory Commission has reviewed them.</p>
+    <h2>Money</h2>
+    <p>{AUTHOR_NAME} receives nothing from the Postal Service, carriers, label sellers or marketplaces and links to none of them as a sponsor. There is no advertising today; if some is added it will be labelled and never placed above a calculator.</p>
+    <h2>Updates and corrections</h2>
+    <p>Nothing on the site updates by itself. Each page shows the date its sources were last read; when the Postal Service publishes a new price file, the pages keep the prices of the files already read until the new one is read, and the date tells you which prices you are looking at. A reported error is checked against the official file and, once fixed, moves that date. Write through the <a href={route('contact', lang)}>contact page</a>; the rules are on the <a href={route('method', lang)}>method page</a>.</p>
+  </article>
+</PageLayout>

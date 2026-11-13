@@ -1,0 +1,105 @@
+{
+  "_lisezmoi": "Registre des sources du site, relues le 2026-11-13 (curl, HTTP 200). Les prix eux-mêmes sont dans rates.json (scripts/data/build-rates.py, fichiers Notice 123 de Postal Explorer) et les zones dans zones.json (scripts/data/build-zones.py, Domestic Zone Chart).",
+  "year": 2027,
+  "retrieved_at": "2026-11-13",
+  "valid_from": "2026-10-04",
+  "valid_to": "2027-07-31",
+  "sources": {
+    "release_2027": {
+      "url": "https://about.usps.com/newsroom/national-releases/2026/1112-usps-recommends-shipping-price-adjustments-for-2027.htm",
+      "label": {
+        "en": "USPS news release, November 12, 2026: U.S. Postal Service Recommends Shipping Price Adjustments for 2027"
+      }
+    },
+    "release_2026_03": {
+      "url": "https://about.usps.com/newsroom/national-releases/2026/0325-usps-announces-transportation-related-time-limited-price-change.htm",
+      "label": {
+        "en": "USPS news release, March 25, 2026: transportation-related time-limited price change"
+      }
+    },
+    "price_change": {
+      "url": "https://pe.usps.com/PriceChange/Index",
+      "label": {
+        "en": "USPS Postal Explorer: price change files (Notice 123 of July 2026, October 2026 and January 2027)"
+      }
+    },
+    "notice123": {
+      "url": "https://pe.usps.com/text/dmm300/Notice123.htm",
+      "label": {
+        "en": "USPS Notice 123, Price List (prices in force)"
+      }
+    },
+    "dmm113": {
+      "url": "https://pe.usps.com/text/dmm300/113.htm",
+      "label": {
+        "en": "Domestic Mail Manual 113: Priority Mail Express prices and eligibility"
+      }
+    },
+    "dmm123": {
+      "url": "https://pe.usps.com/text/dmm300/123.htm",
+      "label": {
+        "en": "Domestic Mail Manual 123: Priority Mail prices and eligibility"
+      }
+    },
+    "dmm133": {
+      "url": "https://pe.usps.com/text/dmm300/133.htm",
+      "label": {
+        "en": "Domestic Mail Manual 133: USPS Ground Advantage retail prices and eligibility"
+      }
+    },
+    "dmm173": {
+      "url": "https://pe.usps.com/text/dmm300/173.htm",
+      "label": {
+        "en": "Domestic Mail Manual 173: Media Mail and Library Mail prices and eligibility"
+      }
+    },
+    "dmm503": {
+      "url": "https://pe.usps.com/text/dmm300/503.htm",
+      "label": {
+        "en": "Domestic Mail Manual 503: extra services (Certified Mail, insurance, Registered Mail, return receipt)"
+      }
+    },
+    "dmm601": {
+      "url": "https://pe.usps.com/text/dmm300/601.htm",
+      "label": {
+        "en": "Domestic Mail Manual 601: mailability and packaging"
+      }
+    },
+    "zone_chart": {
+      "url": "https://postcalc.usps.com/DomesticZoneChart",
+      "label": {
+        "en": "USPS Domestic Zone Chart (effective November 1, 2026)"
+      }
+    },
+    "services": {
+      "url": "https://www.usps.com/ship/mail-shipping-services.htm",
+      "label": {
+        "en": "USPS: mail and shipping services compared (delivery times, weight limits, included insurance)"
+      }
+    },
+    "business_prices": {
+      "url": "https://www.usps.com/business/prices.htm",
+      "label": {
+        "en": "USPS: business prices, retail and Commercial pricing"
+      }
+    },
+    "prc_filings": {
+      "url": "https://prc.arkcase.com/portal/filings",
+      "label": {
+        "en": "Postal Regulatory Commission filings portal (docket CP2027-1, filed November 12, 2026)"
+      }
+    },
+    "prc": {
+      "url": "https://www.prc.gov",
+      "label": {
+        "en": "Postal Regulatory Commission"
+      }
+    },
+    "dmm201": {
+      "url": "https://pe.usps.com/text/dmm300/201.htm",
+      "label": {
+        "en": "Domestic Mail Manual 201: physical standards (70 pounds, 108 and 130 inches in length and girth)"
+      }
+    }
+  }
+}

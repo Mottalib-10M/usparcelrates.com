@@ -1,0 +1,13 @@
+{
+ "accent": "#1B4B8F",
+ "symbol": "lb",
+ "variants": [
+  {
+   "file": "og-en.png",
+   "title": "USPS parcel prices 2027\nby weight and zone, no account",
+   "subtitle": "Ground Advantage · Priority Mail · Express · flat rate · Certified Mail",
+   "badge": "Notice 123 price files · zone chart · prices from January 17, 2027",
+   "brand": "US Parcel Rates"
+  }
+ ]
+}

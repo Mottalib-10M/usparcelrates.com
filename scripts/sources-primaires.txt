@@ -1,0 +1,12 @@
+# usps.com, site officiel du United States Postal Service (établissement fédéral indépendant) : services, prix « From $ » et conditions de chaque service.
+usps.com
+# about.usps.com, salle de presse officielle de l'USPS : communiqués du 25/03/2026 (hausse temporaire de 8 %) et du 12/11/2026 (prix du 17/01/2027, surtaxe carburant de 11 %).
+about.usps.com
+# pe.usps.com, Postal Explorer de l'USPS : Domestic Mail Manual (règles de poids, zones, dimensions) et Notice 123 (grille officielle des prix), fichiers Excel des changements de prix.
+pe.usps.com
+# postcalc.usps.com, calculateur officiel de l'USPS : Domestic Zone Chart, table des zones par préfixe à 3 chiffres.
+postcalc.usps.com
+# prc.gov, Postal Regulatory Commission, régulateur fédéral des prix postaux : examen du dossier CP2027-1.
+prc.gov
+# prc.arkcase.com, portail des dépôts officiels de la Postal Regulatory Commission : dossier CP2027-1 du 12/11/2026.
+prc.arkcase.com

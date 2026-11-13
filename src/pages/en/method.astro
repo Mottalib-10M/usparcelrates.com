@@ -1,0 +1,49 @@
+---
+/** Method: the files, how each rule is applied, a worked example, the limits. Figures from the kit. */
+import PageLayout from '../../layouts/PageLayout.astro';
+import { route } from '../../i18n/routes';
+import { KIT as K } from '../../lib/kit';
+import { src, table } from '../../lib/helpers';
+import { VALUE } from '../../content/home';
+import { breadcrumbSchema, webPageSchema } from '../../lib/seo';
+const lang = 'en';
+const path = route('method', lang);
+const title = 'USPS Price Method 2027: Notice 123 Files and Zone Chart';
+const description = 'How each USPS price for 2027 is built here: the Notice 123 files, the zone chart by ZIP Code, the weight steps, size weight and the 11% fuel surcharge.';
+const P = K.PERIODS;
+const files = [
+  ['July 2026', P.jul2026.file, `${K.day(P.jul2026.effective)} to ${K.day(P.jul2026.through!)}`],
+  ['Today (time-limited)', P.current.file, `${K.day(P.current.effective)} to ${K.day(P.current.through!)}`],
+  ['January 2027 (proposed)', P.jan2027.file, `from ${K.day(P.jan2027.effective)}, plus ${K.pct(K.SURCHARGE)} fuel surcharge`],
+];
+const z = K.zone('10001', '90012');
+const ex = K.quote({ service: 'pm', zone: z, weightOz: 80, dims: [18, 14, 12] });
+const exJ = K.quote({ service: 'pm', zone: z, weightOz: 80, dims: [18, 14, 12], period: 'jan2027' });
+---
+<PageLayout title={title} description={description} lang={lang} jsonLd={[webPageSchema({ name: 'How the prices are built', description, path, lang }), breadcrumbSchema([{ name: 'Home', path: route('home', lang) }, { name: 'How the prices are built', path }])]} breadcrumbs={[{ label: 'How the prices are built' }]}>
+  <article class="prose prose-slate max-w-none prose-headings:font-serif">
+    <h1>How the USPS prices are built</h1>
+    <p><strong>Every price on this site is a cell of a Postal Service price file, read on {K.day(K.READ_ON)}, chosen by the service, the weight step and the zone; the zone is read in the official zone chart from the first three digits of the two ZIP Codes. Nothing is estimated. For January 17, 2027, the proposed base price is multiplied by 1.11 for the fuel surcharge and rounded to the cent.</strong></p>
+    <p>{VALUE}</p>
+    <h2>1. The price files</h2>
+    <p>The Postal Service publishes each price change on <Fragment set:html={src('price_change', 'Postal Explorer')} /> as a Notice 123 workbook. Three of them were downloaded and read sheet by sheet: retail and commercial Priority Mail, Priority Mail Express and Ground Advantage, Media Mail, First-Class Mail and the domestic extra services.</p>
+    <Fragment set:html={table(['Prices', 'File', 'Period'], files, 'Notice 123 workbooks read on November 13, 2026.', ['l', 'l', 'l'])} />
+    <h2>2. The zone</h2>
+    <p>The <Fragment set:html={src('zone_chart', 'Domestic Zone Chart')} /> of the Postal Service gives, for each 3-digit origin prefix, the zone of every destination prefix, with a legend: an asterisk for a destination in the same network distribution center, a plus sign for ranges with 5-digit exceptions. The chart of all {K.num(K.ORIGINS)} origin prefixes it serves, effective {K.ZONE_EFFECTIVE}, was read on November 13, 2026 and stored as served; the 5-digit exceptions are applied by service. The chart is not fully symmetric: the zone from A to B equals the zone from B to A in {K.pct(K.SYMMETRIC ?? 0, 1)} of pairs.</p>
+    <h2>3. Weight steps and size weight</h2>
+    <p>From the Domestic Mail Manual: Ground Advantage under 1 pound is charged at 4, 8, 12 and 15.999 ounces, then by the pound to 70 pounds (<Fragment set:html={src('dmm133', 'DMM 133')} />); Priority Mail at a counter by the pound, any fraction a full pound (<Fragment set:html={src('dmm123', 'DMM 123')} />), with a half-pound step online; Priority Mail Express from a half pound (<Fragment set:html={src('dmm113', 'DMM 113')} />); Media Mail by the pound (<Fragment set:html={src('dmm173', 'DMM 173')} />). Above 1,728 cubic inches, each side rounded up to the inch, the size weight is length times width times height divided by 139, rounded up, and the higher of size weight and real weight is charged, never above the 70-pound price. Length fees above 22 and 30 inches, the volume fee above two cubic feet and the Ground Advantage oversized price between 108 and 130 inches come from the footnotes of Notice 123; limits from <Fragment set:html={src('dmm201', 'DMM 201')} />.</p>
+    <h2>4. The January 2027 prices</h2>
+    <p>The <Fragment set:html={src('release_2027', 'release of November 12, 2026')} /> announces an 11% fuel surcharge on Priority Mail Express, Priority Mail, Ground Advantage and Parcel Select, replacing the time-limited 8% of the <Fragment set:html={src('release_2026_03', 'March 25, 2026 release')} />. The January 2027 workbook gives base prices and two surcharge sheets at 0.11. The site applies 1.11 to the shipping services and their flat rate packaging, not to letters, Media Mail or extra services. The filing, docket CP2027-1, is under review at the <Fragment set:html={src('prc_filings', 'Postal Regulatory Commission')} />: these prices are proposed.</p>
+    <h2>5. A worked example</h2>
+    <p>An 18 by 14 by 12 inch box of 5 pounds from New York (10001) to Los Angeles (90012). Zone chart: zone {z}. Volume 3,024 cubic inches, over one cubic foot: size weight 3,024 ÷ 139 = 21.8, rounded up to {K.dimWeightLb(18, 14, 12)} pounds, higher than 5. Priority Mail at a counter, {K.dimWeightLb(18, 14, 12)} pounds, zone {z}: {K.usd(ex.base)}; the box is under 22 inches long, so no length fee. From January 17, 2027: base {K.usd(exJ.base)} plus {K.usd(exJ.surcharge)} of fuel surcharge, {K.usd(exJ.price)}.</p>
+    <h2>6. Limits</h2>
+    <ul>
+      <li>UPS, FedEx and other carriers are not covered: their price lists refused automated reading, and no figure was copied from elsewhere.</li>
+      <li>Business Rate Card, Priority Mail Cubic, Parcel Select, Ground Advantage Limited Overland Routes inside Alaska, international mail and hazardous material fees are left out.</li>
+      <li>Sunday and holiday delivery premiums, pickup and packaging costs are not added.</li>
+      <li>The Postal Service may round the surcharge differently at checkout; the price it shows is the one you pay.</li>
+      <li>Nothing updates by itself: the date of the files is shown on every page.</li>
+    </ul>
+    <p>Corrections: <a href={route('contact', lang)}>contact page</a>.</p>
+  </article>
+</PageLayout>

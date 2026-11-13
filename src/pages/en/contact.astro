@@ -1,0 +1,24 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import { route } from '../../i18n/routes';
+import { CONTACT_EMAIL } from '../../data/site-config';
+import { contactPageSchema } from '../../lib/seo';
+const lang = 'en';
+const path = route('contact', lang);
+const description = 'Write to US Parcel Rates about a postage price, a zone or a rule that changed. E-mail only: no label sold, no tracking help, nothing passed on to a carrier or a seller.';
+---
+<PageLayout title="Contact US Parcel Rates: report a price or a zone that moved" description={description} lang={lang} noindex={true} jsonLd={[contactPageSchema({ name: 'Contact', description, path, lang })]} breadcrumbs={[{ label: 'Contact' }]} showAuthor={false}>
+  <article class="prose prose-slate max-w-none prose-headings:font-serif">
+    <h1>Contact</h1>
+    <p>By e-mail: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. There is no form and no phone line, and nothing you write is passed on to the Postal Service, a carrier or anyone else.</p>
+    <h2>What helps us most</h2>
+    <ul>
+      <li>A new price file: a Notice 123 file published on Postal Explorer, or a ruling of the Postal Regulatory Commission on the January 2027 prices.</li>
+      <li>A price or a zone that does not match what the Postal Service shows for the same weight and ZIP Codes, with both figures.</li>
+      <li>A rule we read wrong: quote the section of the Domestic Mail Manual that says otherwise.</li>
+      <li>Embedding the calculator on a store, school or library page: the code is on the <a href={route('widget', lang)}>embed page</a>.</li>
+    </ul>
+    <h2>What we cannot do</h2>
+    <p>We are not the Postal Service. We cannot track a package, file a claim, sell a label or change a delivery. The Postal Service handles all of these on usps.com and at its Post Offices.</p>
+  </article>
+</PageLayout>

@@ -1,0 +1,93 @@
+---
+/**
+ * Home (the pillar), ordered for a hurried reader on a phone: the question, the answer in one sentence, the
+ * independent-site line, doors by question, the calculator already filled in, what to have at hand, the cited summary,
+ * then the services, and folded sections (text kept in the HTML). Text: src/content/home.ts.
+ */
+import PageLayout from '../layouts/PageLayout.astro';
+import Clamp from './Clamp.astro';
+import Tool from './Tool.astro';
+import Body from './Body.astro';
+import Fold from './Fold.astro';
+import { HOME, VALUE } from '../content/home';
+import { route } from '../i18n/routes';
+import { GROUPS } from '../i18n/nav';
+import { helpers, SOURCES, table } from '../lib/helpers';
+import { PAGES } from '../lib/pages';
+import { KIT as K } from '../lib/kit';
+import { faqSchema, organizationSchema, websiteSchema, webPageSchema, webApplicationSchema } from '../lib/seo';
+import { LAST_UPDATED } from '../data/site-config';
+const lang = 'en';
+const x = HOME;
+const path = route('home', lang);
+const h = helpers();
+const sources = x.sources.map((k) => ({ name: SOURCES[k].label, url: SOURCES[k].url }));
+const jsonLd = [websiteSchema(lang), organizationSchema(lang), webPageSchema({ name: x.h1, description: x.description, path, lang }), webApplicationSchema({ name: x.h1, description: x.description, path, lang }), faqSchema(x.faqs, lang)];
+// A 2-pound package at a counter, zone by zone: the size of the zone effect at a glance (rates.json cells).
+const zoneRows = K.ZONES.filter((z) => z <= 8).map((z) => [`Zone ${z}`, K.usd(K.q('ga', z, 32, 'current', 'retail')), K.usd(K.q('pm', z, 32, 'current', 'retail')), K.usd(K.q('ga', z, 32, 'jan2027', 'retail'))]);
+const steps = [
+  ['The service', 'Ground Advantage, Priority Mail or Priority Mail Express: the same box can cost three different prices.'],
+  ['The weight step', 'Ground Advantage counts 4, 8, 12 and 15.999 ounces, then whole pounds; a large light box is charged by its size.'],
+  ['The zone', 'Read in the official chart from the first three digits of both ZIP Codes: zone 1 is local, zone 8 across the country.'],
+];
+const doors = [
+  { label: 'A letter: how many stamps?', href: route('how-many-stamps-do-i-need', lang) },
+  { label: 'Flat rate box or pay by weight?', href: route('flat-rate-box-prices', lang) },
+  { label: 'Books: Media Mail price', href: route('media-mail-rates', lang) },
+  { label: 'What changes on January 17, 2027', href: route('usps-price-increase-2027', lang) },
+];
+---
+<PageLayout title={x.title} description={x.description} lang={lang} jsonLd={jsonLd} faqs={x.faqs} sources={sources} faqOuverte={0}>
+  <header class="mb-2">
+    <h1 class="font-serif text-[1.75rem] font-bold text-navy-900 max-sm:leading-tight sm:text-3xl md:text-4xl">{x.h1}</h1>
+    <p class="mt-2 text-base font-medium text-navy-900 sm:text-lg">{x.answer}</p>
+    <p class="mt-2 text-sm font-medium text-navy-700">Independent site: not the Postal Service and not a label seller. No account, no e-mail asked.</p>
+  </header>
+  {/* Doors by profile (brief of 2026-11-10, rule 2): the question a reader comes with, before the form. */}
+  <nav data-chrome data-profils aria-label="Start from your question" class="mb-3">
+    <p class="mb-1 text-base font-semibold text-navy-900">Start from your question</p>
+    <ul class="grid gap-2 sm:grid-cols-2">
+      {doors.map((d) => <li><a href={d.href} class="flex min-h-11 items-center justify-between gap-3 rounded-lg border border-navy-300 bg-white px-4 py-1.5 text-[0.95rem] leading-snug font-medium text-accent-700 hover:bg-navy-50"><span>{d.label}</span><span aria-hidden="true">→</span></a></li>)}
+    </ul>
+  </nav>
+  <div id="calculator" data-outil data-chrome class="scroll-mt-20"><Tool kind="ship" idPrefix="home" /></div>
+  <p class="mt-3 text-sm text-navy-600">USPS Notice 123 price files · zone chart effective November 1, 2026 · January 2027 prices proposed · <a href={route('method', lang)} class="underline">How the prices are built</a> · <a href={route('about', lang)} class="underline">Who publishes this</a> · Last updated {K.day(LAST_UPDATED)}</p>
+  <section class="mt-6" aria-labelledby="three-things">
+    <h2 id="three-things" class="font-serif text-xl font-bold text-navy-900">Three things set a USPS price</h2>
+    <ol class="mt-2 list-decimal space-y-1 pl-5 text-[0.95rem] text-navy-800">
+      {steps.map(([t, d]) => <li><strong>{t}.</strong> {d}</li>)}
+    </ol>
+  </section>
+  <figure class="mt-6 overflow-x-auto">
+    <figcaption class="mb-2 text-sm font-semibold text-navy-900">A 2 lb package at a Post Office counter, by zone</figcaption>
+    <table class="w-full text-sm">
+      <thead><tr><th class="text-left">Zone</th><th class="text-right">Ground Advantage today</th><th class="text-right">Priority Mail today</th><th class="text-right">Ground Advantage {K.JAN}</th></tr></thead>
+      <tbody>{zoneRows.map((r) => <tr><td>{r[0]}</td><td class="text-right">{r[1]}</td><td class="text-right">{r[2]}</td><td class="text-right">{r[3]}</td></tr>)}</tbody>
+    </table>
+    <p class="mt-1 text-xs text-navy-600">USPS Notice 123 retail prices; January 2027 = proposed base price plus the 11% fuel surcharge.</p>
+  </figure>
+  <section class="mt-6"><Body html={x.start(h)} path={path} /></section>
+  <Clamp text={x.resume} lang={lang} id="clamp-home" class="my-6" />
+  <aside class="boxnote not-prose my-6" aria-labelledby="jan-2027">
+    <h3 id="jan-2027" class="boxnote-title">What changes on January 17, 2027</h3>
+    <p class="text-navy-800">The time-limited 8% surcharge ends and an {K.pct(K.SURCHARGE)} fuel surcharge is added to Priority Mail Express, Priority Mail and Ground Advantage. Our example, {K.EX.lb} lb from {K.EX.fromCity} to {K.EX.toCity} by Ground Advantage at a counter: {K.usd(K.q('ga', K.zone(K.EX.from, K.EX.to), 32, 'current', 'retail'))} today, {K.usd(K.q('ga', K.zone(K.EX.from, K.EX.to), 32, 'jan2027', 'retail'))} from January 17. Letters and stamps do not change. <a href={route('usps-price-increase-2027', lang)} class="underline">Every change</a>.</p>
+  </aside>
+  <section class="mt-6"><Body html={x.guide(h)} path={path} /></section>
+  <div class="mt-8">
+    {x.folds.map((f) => <Fold title={f.title} id={f.id}><Body html={f.html(h)} path={path} /></Fold>)}
+    <div data-chrome>
+      <Fold title="Every calculator by topic" id="calculators">
+        <div class="mt-2 grid gap-6 sm:grid-cols-3">
+          {GROUPS.map((g) => (
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-wide text-navy-600">{g.label}</p>
+              <ul class="mt-2 space-y-2 text-sm">
+                {PAGES.filter((p) => p.group === g.id).map((p) => <li><a href={route(p.id, lang)} class="font-medium text-accent-700 underline-offset-2 hover:underline">{p.nav}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Fold>
+    </div>
+  </div>
+</PageLayout>
