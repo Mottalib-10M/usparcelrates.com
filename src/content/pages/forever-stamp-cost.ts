@@ -28,7 +28,7 @@ export default definePage({
 ${h.table(['Effective', 'Price', 'Change'], rows, 'USPS Historian, Rates for Domestic Letters Since 1863 (page dated August 2026).', ['l', 'r', 'r'])}
 <h2>What your Forever stamps are worth now</h2>
 <p>Count the stamps you hold and pick the price you paid. The calculator multiplies by today's price and shows the gain; it is a value in postage, not money the Postal Service would pay back.</p>
-${h.mini('forever', { t: 'Value of your stamps', p: ['n', 'since'] })}
+${h.mini('book', { t: 'Buying new Forever stamps today', p: ['fmt', 'n'] })}
 <h2>Stamps with a printed value</h2>
 <p>Older stamps with a value printed in cents are worth only that value. To mail a letter with them, add stamps until the total reaches ${K.usd(st)}. For postcards, larger envelopes or several ounces, the ${h.a('first-class-postage', 'First-Class postage page')} has the price at each weight, and the ${h.a('book-of-stamps-cost', 'book of stamps page')} the price of a booklet or a coil.</p>
 <p>Buying stamps ahead of a price change is the one saving a household can make on letters. The new price is announced weeks before it applies, so a book bought the day before still mails twenty letters afterwards.</p>

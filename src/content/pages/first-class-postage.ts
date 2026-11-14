@@ -14,8 +14,8 @@ export default definePage({
   nav: 'First-Class postage', card: 'Letters, large envelopes and postcards by ounce, with stamps or a postage meter.',
   title: 'First Class Postage 2027: Letter, Large Envelope, Postcard',
   description: `First Class postage for 2027: letters from ${K.usd(st)}, large envelopes from ${K.usd(f1)} and postcards at ${K.usd(pc)}, ounce by ounce, with the cheaper meter price shown.`,
-  h1: 'First Class postage: letters, large envelopes, postcards',
-  intro: 'First Class postage for anything flat you mail in the United States, by shape and ounce. Choose what you send and its weight.',
+  h1: 'First-Class postage: letters, large envelopes, postcards',
+  intro: 'First-Class postage for anything flat you mail in the United States, by shape and ounce. Choose what you send and its weight.',
   resume: `First Class postage is the price of First-Class Mail, the class for letters, large envelopes and postcards. It depends on the shape first, then on the weight in ounces, and never on distance. In the Notice 123 retail list read on November 13, 2026, a letter costs ${K.usd(st)} up to 1 ounce, plus ${K.usd(add)} for each extra ounce up to 3.5 ounces. A large envelope, flat and flexible, starts at ${K.usd(f1)} for 1 ounce and goes up to ${K.usd(f13)} at 13 ounces, its limit. A postcard costs ${K.usd(pc)}. Businesses that print postage with a meter pay ${K.usd(met)} for a 1-ounce letter, ${K.usd(st - met)} less than a stamp. Square, rigid or lumpy letters add ${K.usd(nm)}. Above 13 ounces the piece is a package, sent by Ground Advantage from ${K.usd(ga)} for a pound nearby. The January 17, 2027 filing changes none of these prices: the Postal Service said stamp prices stay as they are.`,
   faqs: [
     { q: 'What is the difference between a letter and a large envelope?', a: `Shape. A letter is a standard envelope or card up to 3.5 ounces that machines can sort; a large envelope, or flat, is bigger but still flat and flexible, up to 13 ounces. The same 1-ounce item costs ${K.usd(st)} as a letter and ${K.usd(f1)} as a large envelope, so folding a document into a standard envelope saves money.` },
@@ -23,10 +23,10 @@ export default definePage({
     { q: 'What happens if a large envelope is rigid or lumpy?', a: `It stops being a large envelope. A flat that is rigid, uneven or thicker than allowed is priced as a package, by Ground Advantage, which costs ${K.usd(ga)} for up to a pound in zone 1 and ${K.usd(ga8)} in zone 8. Keep contents flat and even to stay at the large envelope price.` },
   ],
   body: (h) => `
-<h2>First Class postage by ounce</h2>
+<h2>First-Class postage by ounce</h2>
 <p>The table gives the three prices that matter for a letter: with stamps, with a postage meter and, for the same weight, as a large envelope. A letter stops at 3.5 ounces; above that, the large envelope scale goes on.</p>
 ${h.table(['Weight not over', 'Letter, stamps', 'Letter, meter', 'Large envelope'], rows, 'First-Class Mail retail prices, Notice 123. No change filed for January 17, 2027.', ['l', 'r', 'r', 'r'])}
-${h.mini('fcm', { t: 'First Class postage for your piece', p: ['what', 'w'] })}
+${h.mini('fcm', { t: 'Same question for a large envelope', p: ['what', 'w'], d: { what: 'flat', w: 5 } })}
 <h2>Large envelopes from 4 to 13 ounces</h2>
 <p>A catalog, a stack of forms or a thin booklet in a 9 by 12 inch envelope often weighs between 4 and 13 ounces. The number of Forever stamps assumes each stamp is worth the 1-ounce letter price and rounds up.</p>
 ${h.table(['Weight not over', 'Postage', 'Forever stamps'], flatRows, 'First-Class Mail large envelopes (flats), Notice 123.', ['l', 'r', 'r'])}

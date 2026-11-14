@@ -24,7 +24,7 @@ export default definePage({
 ${h.table(['Item', 'Price today'], rows, 'First-Class Mail, Notice 123. No change filed for January 17, 2027.', ['l', 'r'])}
 <h2>One stamp or more</h2>
 <p>A standard envelope with a few sheets of paper weighs about an ounce and needs one Forever stamp. Heavier letters need more postage, and a Forever stamp is always worth the 1-ounce price, so a 2-ounce letter at ${K.usd(K.letter('current', 2)!)} takes two stamps and overpays a little. The ${h.a('how-many-stamps-do-i-need', 'stamps calculator')} counts them for any weight.</p>
-${h.mini('stamps', { t: 'Postage for your envelope', p: ['what', 'w'] })}
+${h.mini('book', { t: 'A book of 20 stamps', p: ['fmt', 'n'] })}
 <h2>Mail that is not a letter</h2>
 <p>The Postal Service sorts mail by shape before weight. A large envelope, flat and flexible, up to 13 ounces, has its own price scale on the ${h.a('large-envelope-postage', 'large envelope page')}. Postcards are on the ${h.a('postcard-stamp-price', 'postcard page')}. Anything thicker, stiffer or heavier is a package, priced by weight and zone rather than by ounce alone: see ${h.a('usps-ground-advantage-rates', 'Ground Advantage')}.</p>
 `,

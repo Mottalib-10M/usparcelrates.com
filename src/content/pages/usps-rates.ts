@@ -29,7 +29,7 @@ ${h.table(['Weight', 'Ground Advantage', 'Priority Mail', 'Priority Mail Express
 <h2>USPS rates from January 17, 2027</h2>
 <p>The same weights in the proposed file of November 12, 2026, with the 11% fuel surcharge added by this site as the Postal Service announced. The Postal Regulatory Commission reviews the filing before that date.</p>
 ${h.table(['Weight', 'Ground Advantage', 'Priority Mail', 'Priority Mail Express'], rowsJ, 'Proposed base price plus 11%, docket CP2027-1.', ['l', 'r', 'r', 'r'])}
-${h.mini('rates', { t: 'All rates for your weight', p: ['lb', 'zone'] })}
+${h.mini('rates', { t: 'All rates for 10 lb across the country', p: ['lb', 'zone'], d: { lb: 10, zone: '8' } })}
 <h2>Reading the rate card</h2>
 <p>Start from the weight of the packed box and round up as the Postal Service does: by ounce steps under a pound for Ground Advantage, by the pound above. Find the zone of your two ZIP Codes on the ${h.a('usps-zone-chart', 'zone chart page')}. Then compare the columns: Ground Advantage is usually the lowest, Priority Mail is a day or two faster, and the Flat Rate Envelope at ${K.usd(env)} beats both for a heavy document going far. For a single answer with your ZIP Codes, use the ${h.a('cost-to-ship-a-package', 'shipping cost calculator')}.</p>
 `,

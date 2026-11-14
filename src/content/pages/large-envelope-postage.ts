@@ -23,7 +23,7 @@ export default definePage({
 <h2>Large envelope postage from 1 to 13 ounces</h2>
 ${h.table(['Weight', 'Price today', 'July 2026'], rows, 'First-Class Mail retail, Notice 123. No change filed for January 2027.', ['l', 'r', 'r'])}
 <p>The price climbs steadily, so the weight matters more than the size of the envelope. A thick report of 6 ounces in a large envelope costs ${K.usd(K.largeEnvelope('current', 6)!)}. Split into two letters of 3 ounces each it would cost ${K.usd(2 * K.letter('current', 3)!)}, less, but the pages travel separately and may not arrive the same day.</p>
-${h.mini('stamps', { t: 'Postage for your large envelope', p: ['w'], d: { what: 'flat', w: 5 } })}
+${h.mini('ga', { t: 'Over 13 oz it is a package: Ground Advantage', p: ['lb', 'oz'], d: { lb: 1, oz: 0 } })}
 <h2>Flat, flexible, under 13 ounces</h2>
 <p>Three checks keep a piece in the large envelope price. It must be larger than a letter, so a standard business envelope is a letter, not a flat. It must stay flat and bend: a padded mailer with a box inside, a binder or a thick booklet that will not flex is a package. And it must weigh 13 ounces or less; one more ounce and Ground Advantage applies.</p>
 <h2>Stamps or a label</h2>

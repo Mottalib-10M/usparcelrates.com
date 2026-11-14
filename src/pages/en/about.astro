@@ -24,7 +24,7 @@ const description = 'Who publishes these USPS price calculators for 2027, the Po
     <h2>What it relies on</h2>
     <p>The Notice 123 price files of July 2026, October 2026 and January 2027 (proposed), the domestic zone chart effective {K.ZONE_EFFECTIVE} for {K.num(K.ORIGINS)} origin prefixes, the Domestic Mail Manual chapters on each service and on extra services, the Postal Service releases of March 25 and November 12, 2026, and the filings portal of the Postal Regulatory Commission.</p>
     <h2>What it leaves out</h2>
-    <p>UPS and FedEx prices, which could not be read at their source; negotiated business prices; international mail. The <a href={route('method', lang)}>method page</a> lists every simplification and the <a href={route('editorial', lang)}>editorial policy</a> explains corrections.</p>
+    <p>UPS and FedEx prices, which could not be read at their source; negotiated business prices; for mail abroad, only the Post Office prices of the main international services, on the international shipping page. The <a href={route('method', lang)}>method page</a> lists every simplification and the <a href={route('editorial', lang)}>editorial policy</a> explains corrections.</p>
     <h2>Contact</h2>
     <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>, for a price that changed or a rule we read wrong. We cannot track a package or file a claim: only the Postal Service can.</p>
   </article>

@@ -24,7 +24,7 @@ export default definePage({
 <h2>Book of stamps cost by format</h2>
 <p>Every format below holds Forever stamps at the same unit price; only the number of stamps changes the total. The formats are those the Postal Bulletin lists for the U.S. Flag Forever stamp issued on June 9, 2026.</p>
 ${h.table(['Format', 'Stamps', 'Cost today'], rows, `At ${K.usd(st)} per Forever stamp (First-Class Mail, 1-ounce letter, Notice 123).`, ['l', 'r', 'r'])}
-${h.mini('book', { t: 'Your stamp purchase', p: ['fmt', 'n'] })}
+${h.mini('stamps', { t: 'How many of those stamps for your envelope?', p: ['what', 'w'], d: { w: 2 } })}
 <h2>What a book of 20 cost over the past changes</h2>
 <p>The Historian of the Postal Service publishes the first-ounce letter price at each change. Multiplied by 20, it gives the price of a book on each date.</p>
 ${h.table(['Price change', 'One stamp', 'Book of 20'], hist, 'USPS Historian, Rates for Domestic Letters Since 1863 (August 2026).', ['l', 'r', 'r'])}

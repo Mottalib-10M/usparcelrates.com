@@ -24,11 +24,12 @@ const h = helpers();
 const sources = x.sources.map((k) => ({ name: SOURCES[k].label, url: SOURCES[k].url }));
 const jsonLd = [websiteSchema(lang), organizationSchema(lang), webPageSchema({ name: x.h1, description: x.description, path, lang }), webApplicationSchema({ name: x.h1, description: x.description, path, lang }), faqSchema(x.faqs, lang)];
 // A 2-pound package at a counter, zone by zone: the size of the zone effect at a glance (rates.json cells).
+const exH = K.history({ service: 'ga', zone: K.zone(K.EX.from, K.EX.to), weightOz: K.EX.lb * 16 }), exJul = exH.jul.price, exNow = exH.now.price, exJan = exH.jan.price;
 const zoneRows = K.ZONES.filter((z) => z <= 8).map((z) => [`Zone ${z}`, K.usd(K.q('ga', z, 32, 'current', 'retail')), K.usd(K.q('pm', z, 32, 'current', 'retail')), K.usd(K.q('ga', z, 32, 'jan2027', 'retail'))]);
 const steps = [
   ['The service', 'Ground Advantage, Priority Mail or Priority Mail Express: the same box can cost three different prices.'],
   ['The weight step', 'Ground Advantage counts 4, 8, 12 and 15.999 ounces, then whole pounds; a large light box is charged by its size.'],
-  ['The zone', 'Read in the official chart from the first three digits of both ZIP Codes: zone 1 is local, zone 8 across the country.'],
+  ['The zone', 'Read in the official chart from the first three digits of both ZIP Codes: zone 1 is local, zone 8 across the country, zone 9 some Pacific territories such as Guam.'],
 ];
 const doors = [
   { label: 'A letter: how many stamps?', href: route('how-many-stamps-do-i-need', lang) },
@@ -68,9 +69,16 @@ const doors = [
   </figure>
   <section class="mt-6"><Body html={x.start(h)} path={path} /></section>
   <Clamp text={x.resume} lang={lang} id="clamp-home" class="my-6" />
+  {/* Testers 2026-11-14: April, July, October and January changes were told in three places with three percentages; one dated list here. */}
   <aside class="boxnote not-prose my-6" aria-labelledby="jan-2027">
-    <h3 id="jan-2027" class="boxnote-title">What changes on January 17, 2027</h3>
-    <p class="text-navy-800">The time-limited 8% surcharge ends and an {K.pct(K.SURCHARGE)} fuel surcharge is added to Priority Mail Express, Priority Mail and Ground Advantage. Our example, {K.EX.lb} lb from {K.EX.fromCity} to {K.EX.toCity} by Ground Advantage at a counter: {K.usd(K.q('ga', K.zone(K.EX.from, K.EX.to), 32, 'current', 'retail'))} today, {K.usd(K.q('ga', K.zone(K.EX.from, K.EX.to), 32, 'jan2027', 'retail'))} from January 17. Letters and stamps do not change. <a href={route('usps-price-increase-2027', lang)} class="underline">Every change</a>.</p>
+    <h3 id="jan-2027" class="boxnote-title">USPS package prices in 2026 and 2027, in date order</h3>
+    <ol class="mt-1 list-decimal space-y-1.5 pl-5 text-[0.95rem] text-navy-800">
+      <li><strong>April 26, 2026:</strong> a time-limited 8% increase on Ground Advantage, Priority Mail and Priority Mail Express.</li>
+      <li><strong>July 12, 2026:</strong> new price list; the 8% stays. Our example ({K.EX.lb} lb, {K.EX.fromCity} to {K.EX.toCity}, Ground Advantage at a counter): {K.usd(exJul)}.</li>
+      <li><strong>October 4, 2026 to January 16, 2027:</strong> holiday prices, the ones this site calls “today”: {K.usd(exNow)}.</li>
+      <li><strong>January 17, 2027 (proposed, under review):</strong> holiday prices end, base prices rise by 5.9% on average, and the 8% becomes a permanent fuel surcharge of {K.pct(K.SURCHARGE)} (8% + 3%). Our example: {K.usd(exJan)}, {K.chg((exJan - exNow) / exNow)} against today. Each package moves by its own percentage: the calculator shows yours.</li>
+    </ol>
+    <p class="mt-2 text-navy-800">Stamps, letters, postcards and Media Mail do not change. <a href={route('usps-price-increase-2027', lang)} class="underline">Every change</a>.</p>
   </aside>
   <section class="mt-6"><Body html={x.guide(h)} path={path} /></section>
   <div class="mt-8">

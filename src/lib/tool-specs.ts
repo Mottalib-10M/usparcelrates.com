@@ -50,13 +50,15 @@ const FROM = (def: string = EX.from): Input => ({ kind: 'zip', id: 'from', label
 const TO = (def: string = EX.to): Input => ({ kind: 'zip', id: 'to', label: 'To ZIP Code', short: 'to', def, help: 'Where it is delivered' });
 const LB = (def: number = EX.lb): Input => ({ id: 'lb', label: 'Weight: pounds', short: 'pounds', def, unit: 'lb', max: 70, help: 'Packed, box included. Up to 70 lb' });
 const OZF = (def: number = EX.oz): Input => ({ id: 'oz', label: 'Weight: ounces', short: 'ounces', def, unit: 'oz', max: 15.9, decimals: 1, help: '0 to 15.9; 16 oz make 1 lb' });
-const DIM = (id: 'l' | 'w' | 'h', label: string): Input => ({ id, label, short: label.toLowerCase(), def: 0, unit: 'in', max: 130, decimals: 1, adv: true, help: id === 'l' ? '0 if small: counts over 1 cubic foot' : undefined });
+const DIM = (id: 'l' | 'w' | 'h', label: string): Input => ({ id, label, short: label.toLowerCase(), def: 0, unit: 'in', max: 130, decimals: 1, adv: true, help: 'Inches; empty if under 12 in' });
 const DIMS: Input[] = [DIM('l', 'Length'), DIM('w', 'Width'), DIM('h', 'Height')];
 const ZONE_SEL = (def = 8): Input => ({ kind: 'select', id: 'zone', label: 'Zone (distance band of the zone chart)', short: 'zone', def: String(def), options: ZONES.map((z) => ({ value: String(z), label: z === 1 ? 'Zone 1 (same area)' : z === 8 ? 'Zone 8 (across the country)' : z === 9 ? 'Zone 9 (Pacific territories)' : `Zone ${z}` })) });
 
 /** Applies `arg` to the defaults of a list of fields. */
 function spec(inputs: Input[], arg: Record<string, number | string>, run: (v: V) => ToolOut, pending?: (v: V) => Promise<unknown> | null): ToolSpec {
   return {
+    // Testers 2026-11-14: "Already filled in: length 0 in" read as a wrong box size.
+    advHint: inputs.some((i) => i.adv && i.id === 'l') ? 'Box size: only for a box bigger than 12 × 12 × 12 in; leave empty otherwise' : undefined,
     inputs: inputs.map((i) => (arg[i.id] === undefined ? i : { ...i, def: (i.kind === 'choice' || i.kind === 'select' || i.kind === 'zip') ? String(arg[i.id]) : Number(arg[i.id]) } as Input)),
     run,
     pending,
@@ -75,11 +77,18 @@ function zoneOf(v: V, svc: 'pm' | 'ga_light' | 'other' = 'other'): { z: ZoneResu
 }
 const svcKey = (service: Service, oz: number): 'pm' | 'ga_light' | 'other' => (service === 'pm' || service === 'pme' ? 'pm' : service === 'ga' && oz < OZ ? 'ga_light' : 'other');
 const noZone = (label: string, why: string): ToolOut => ({ label, value: '–', sub: why, rows: [] });
-const ZONE_WORD = (z: Zone, r: ZoneResult) => `zone ${z}${r.sameNdc ? ' (same network center)' : ''}`;
+/** Testers 2026-11-14: "zone 8" was never explained where it shows, and zone 9 nowhere. */
+export const zoneHint = (z: number) => (z === 9 ? 'zone 9: some Pacific territories such as Guam' : z === 1 ? 'zone 1: the nearest band' : z === 8 ? 'zone 8: across the country' : `zone ${z} of 8 (1 = nearby, 8 = across the country)`);
+const ZONE_WORD = (z: Zone, r: ZoneResult) => `${zoneHint(z)}${r.sameNdc ? ' (same network center)' : ''}`;
 const DAYS: Record<Service, string> = { pme: '1 to 3 days, guaranteed', pm: '2 to 3 days', ga: '2 to 5 days', media: '2 to 8 days' };
 const SVC_ROW: Service[] = ['ga', 'pm', 'pme'];
 const q = (service: Service, zone: Zone, oz: number, period: Period, channel: Channel, dims: [number, number, number] | null) => quote({ service, zone, weightOz: oz, period, channel, dims });
 const price = (x: Quote) => (x.available ? usd(x.price) : 'not accepted');
+/** Testers 2026-11-14: "2 stamps" for a $1.11 letter looked like a mistake; the row says what they are worth and why. */
+const stampRow = (p: number): [string, string] => {
+  const st = stampsNeeded(p);
+  return ['Forever stamps to put on it', st.overpay > 0 ? `${st.count} (worth ${usd(st.count * st.stamp)}: stamps give no change, ${usd(st.overpay)} more than the postage)` : String(st.count)];
+};
 const exampleShip = (v: V) => `Example: a ${wLabel(weightOz(v))} package from ${s(v, 'from')} to ${s(v, 'to')}`;
 
 type Arg = Record<string, number | string>;
@@ -97,7 +106,7 @@ function svcSpec(service: Exclude<Service, 'media'>, arg: Arg): ToolSpec {
         sub: `${ZONE_WORD(zr.zone, zr.z)} · charged as ${now.tier.label}${now.dimLb ? ` (box size weight ${now.dimLb} lb)` : ''}`,
         rows: [
           [`${JAN} (proposed, with the ${pct(SURCHARGE)} fuel surcharge)`, price(jan), jan.price],
-          ['Change on January 17, 2027', jan.available ? chg((jan.price - now.price) / now.price) : '–'],
+          ['Change for this package on January 17, 2027', jan.available ? chg((jan.price - now.price) / now.price) : '–'],
           [ch === 'retail' ? 'Same label bought online today' : 'Same package at the Post Office today', price(other), other.price],
           ...(now.fees ? [['Size fees included', usd(now.fees)] as [string, string]] : []),
         ],
@@ -114,31 +123,36 @@ function svcSpec(service: Exclude<Service, 'media'>, arg: Arg): ToolSpec {
 const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
   /** Home and "how much to ship": every service for one package, at the Post Office and online, now and in 2027. */
   ship: (arg = {}) => spec([FROM(), TO(), LB(), OZF(), ...DIMS], arg, (v) => {
-    const oz = weightOz(v), dims = dimsOf(v);
-    if (oz <= 0) return noZone('Cheapest at the Post Office today', 'Enter the weight of the package.');
+    const oz = weightOz(v), dims = dimsOf(v), head = 'Cheapest today: a label bought online';
+    if (oz <= 0) return noZone(head, 'Enter the weight of the package.');
     const zr = zoneOf(v, svcKey('pm', oz)), zg = zoneOf(v, svcKey('ga', oz));
-    if (!zr.zone || !zg.zone) return noZone('Cheapest at the Post Office today', zr.why ?? zg.why ?? '');
+    if (!zr.zone || !zg.zone) return noZone(head, zr.why ?? zg.why ?? '');
     const zoneFor = (sv: Service) => (sv === 'ga' ? zg.zone! : zr.zone!);
     const now = SVC_ROW.map((sv) => q(sv, zoneFor(sv), oz, 'current', 'retail', dims));
     const onl = SVC_ROW.map((sv) => q(sv, zoneFor(sv), oz, 'current', 'comm', dims));
     const jan = SVC_ROW.map((sv) => q(sv, zoneFor(sv), oz, 'jan2027', 'retail', dims));
     const janO = SVC_ROW.map((sv) => q(sv, zoneFor(sv), oz, 'jan2027', 'comm', dims));
-    const ok = now.filter((x) => x.available).sort((a, b) => a.price - b.price);
-    if (!ok.length) return noZone('Cheapest at the Post Office today', now[0].reason ?? 'Not mailable.');
-    const best = ok[0], bestOnline = onl.filter((x) => x.available).sort((a, b) => a.price - b.price)[0];
-    const bestJan = jan.filter((x) => x.available).sort((a, b) => a.price - b.price)[0];
+    const cheapest = (xs: Quote[]) => xs.filter((x) => x.available).sort((a, b) => a.price - b.price)[0];
+    const best = cheapest(now), bestOnline = cheapest(onl);
+    if (!best || !bestOnline) return noZone(head, now[0].reason ?? 'Not mailable.');
+    const bj = SVC_ROW.indexOf(bestOnline.service);
+    const pmO = onl[1], m = media('current', oz);
     const dim = dims ? dimWeightLb(...dims) : null;
+    // Testers 2026-11-14: the big figure is the cheapest price (online), the counter price sits beside it, one sentence says both.
     return {
-      label: 'Cheapest at the Post Office today', value: usd(best.price), example: exampleShip(v),
-      sub: `${SERVICE_NAME[best.service]}, ${ZONE_WORD(best.zone, zg.z)}, ${DAYS[best.service]}`,
+      label: head, value: usd(bestOnline.price), side: ['at the Post Office counter', usd(best.price)], example: exampleShip(v),
+      answer: `Cheapest: ${usd(bestOnline.price)} with a label bought online${best.service === bestOnline.service ? '' : ` (${SERVICE_SHORT[bestOnline.service]})`}; ${usd(best.price)} at the counter${best.service === bestOnline.service ? `, both by ${SERVICE_SHORT[best.service]}` : ` (${SERVICE_SHORT[best.service]})`}.`,
+      sub: `${DAYS[bestOnline.service]} · ${ZONE_WORD(zg.zone, zg.z)} · online label: pay and print it on usps.com (Click-N-Ship)`,
+      keep: 3,
       rows: [
+        ...(pmO.available && pmO.service !== bestOnline.service ? [[`Faster: Priority Mail, 2 to 3 days, online label`, usd(pmO.price)] as [string, string]] : []),
+        ...(m.available ? [[`Books and media only: Media Mail, 2 to 8 days`, usd(m.price)] as [string, string]] : []),
+        ...(janO[bj].available ? [[`Same online label ${JAN} (proposed)`, usd(janO[bj].price)] as [string, string]] : []),
         ...now.map((x): [string, string, number] => [`${SERVICE_SHORT[x.service]} at the Post Office (${DAYS[x.service]})`, price(x), x.available ? x.price : 0]),
-        [`Cheapest online label today (${SERVICE_SHORT[bestOnline.service]})`, usd(bestOnline.price)],
-        [`Cheapest at the Post Office ${JAN}`, usd(bestJan.price)],
         ...(dim ? [[`Size weight of the box (dimensional weight)`, `${dim} lb`] as [string, string]] : []),
       ],
       table: {
-        caption: `Same package, ${wLabel(oz)}, zone ${zg.zone}${zr.zone !== zg.zone ? ` (Priority Mail zone ${zr.zone})` : ''}. Prices ${JAN} are proposed and include the 11% fuel surcharge.`,
+        caption: `Same package, ${wLabel(oz)}, zone ${zg.zone}${zr.zone !== zg.zone ? ` (Priority Mail zone ${zr.zone})` : ''}. “Now” = holiday prices in force until January 16, 2027. Prices ${JAN} are proposed and include the 11% fuel surcharge.`,
         headers: ['Service', 'Post Office now', 'Online now', `Post Office ${JAN}`, `Online ${JAN}`],
         rows: SVC_ROW.map((sv, i) => [SERVICE_SHORT[sv], price(now[i]), price(onl[i]), price(jan[i]), price(janO[i])]),
         align: ['l', 'r', 'r', 'r', 'r'],
@@ -234,17 +248,19 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
   /** Certified Mail: postage plus fees. */
   certified: (arg = {}) => spec([
     { id: 'w', label: 'Letter weight in ounces', short: 'weight', def: 1, unit: 'oz', max: 3.5, decimals: 1, help: 'A few sheets in a standard envelope: 1 oz' },
-    { kind: 'select', id: 'rr', label: 'Proof of who signed (return receipt)', short: 'return receipt', def: 'paper', options: [{ value: 'none', label: 'None (tracking only)' }, { value: 'paper', label: 'Green card by mail (PS Form 3811)' }, { value: 'email', label: 'Electronic, by e-mail' }] },
-    { kind: 'choice', id: 'rd', label: 'Only the addressee may sign', short: 'restricted', def: 'no', options: [{ value: 'no', label: 'No' }, { value: 'yes', label: 'Yes' }], adv: true },
+    { kind: 'select', id: 'rr', label: 'Proof of who signed (return receipt)', short: 'return receipt', def: 'paper', help: 'Green card = the card the recipient signs, mailed back to you (PS Form 3811)', options: [{ value: 'none', label: 'None (record online only)' }, { value: 'paper', label: 'Green card: signed card mailed back' }, { value: 'email', label: 'Signature sent by e-mail' }] },
+    { kind: 'choice', id: 'rd', label: 'Who may sign for it', short: 'signed by', def: 'no', options: [{ value: 'no', label: 'Anyone at the address' }, { value: 'yes', label: 'Only the addressee' }], adv: true, help: '“Only the addressee” is Restricted Delivery, a higher fee' },
   ], arg, (v) => {
     const e = extras('current'), w = Math.max(n(v, 'w'), 0.1);
     const post = letter('current', w) ?? letter('current', 3.5)!;
     const cert = s(v, 'rd') === 'yes' ? e.certified_restricted : e.certified;
     const rr = s(v, 'rr') === 'paper' ? e.return_receipt_retail : s(v, 'rr') === 'email' ? e.return_receipt_electronic : 0;
-    const total = Math.round((post + cert + rr) * 100) / 100;
+    const total = Math.round((post + cert + rr) * 100) / 100, bare = Math.round((post + cert) * 100) / 100;
+    const rrWord = s(v, 'rr') === 'paper' ? 'green card' : 'e-mail receipt';
+    // Testers 2026-11-14: $11.02 here and $6.37 in the table read as two prices for one letter; each total says what it holds.
     return {
-      label: 'Certified Mail letter, total at the Post Office', value: usd(total), example: `Example: a ${formatNumber(w, Number.isInteger(w) ? 0 : 1)} oz letter`,
-      sub: 'Postage, Certified Mail fee and return receipt added',
+      label: `Certified Mail letter${rr ? ` with ${rrWord}` : ', no receipt'}: total at the Post Office`, value: usd(total), example: `Example: a ${formatNumber(w, Number.isInteger(w) ? 0 : 1)} oz letter`,
+      answer: rr ? `${usd(total)} = ${usd(post)} postage + ${usd(cert)} Certified fee + ${usd(rr)} ${rrWord}. Without a receipt: ${usd(bare)}.` : `${usd(total)} = ${usd(post)} postage + ${usd(cert)} Certified fee. With the green card mailed back: ${usd(bare + e.return_receipt_retail)}.`,
       rows: [['Postage (First-Class Mail letter)', usd(post), post], [s(v, 'rd') === 'yes' ? 'Certified Mail Restricted Delivery' : 'Certified Mail fee', usd(cert), cert], ['Return receipt', rr ? usd(rr) : 'none', rr], [`Same letter ${JAN}`, `${usd(total)} (no change filed)`]],
     };
   }),
@@ -411,7 +427,7 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
   fcm: (arg = {}) => spec([
     { kind: 'select', id: 'what', label: 'What you mail', short: 'item', def: 'letter', options: [{ value: 'letter', label: 'Letter (up to 3.5 oz)' }, { value: 'flat', label: 'Large envelope (up to 13 oz)' }, { value: 'postcard', label: 'Postcard' }] },
     { id: 'w', label: 'Weight in ounces', short: 'weight', def: 2, unit: 'oz', max: 13, decimals: 1, help: 'Round up: 1.2 oz pays the 2 oz price' },
-    { kind: 'choice', id: 'pay', label: 'Paid with', short: 'paid with', def: 'stamp', options: [{ value: 'stamp', label: 'Stamps' }, { value: 'meter', label: 'Postage meter' }], adv: true, help: 'Meter prices exist for letters only' },
+    { kind: 'choice', id: 'pay', label: 'Paid with', short: 'paid with', def: 'stamp', options: [{ value: 'stamp', label: 'Stamps' }, { value: 'meter', label: 'Postage meter' }], adv: true, help: 'A meter is an office franking machine; its prices exist for letters only' },
   ], arg, (v) => {
     const what = s(v, 'what'), w = Math.max(n(v, 'w'), 0.1), meter = s(v, 'pay') === 'meter' && what === 'letter';
     const p = what === 'postcard' ? postcard('current') : what === 'flat' ? largeEnvelope('current', w) : letter('current', w, meter);
@@ -422,10 +438,11 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
       label, value: usd(p), example: `Example: a ${formatNumber(w, Number.isInteger(w) ? 0 : 1)} oz ${what === 'flat' ? 'large envelope' : what}`,
       sub: what === 'postcard' ? 'Postcard price, any weight within the card size' : `charged at the ${Math.ceil(w - 1e-9) > 3 && what === 'letter' ? '3.5' : formatNumber(Math.ceil(w - 1e-9), 0)} oz step`,
       rows: [
-        ['Forever stamps to put on it', String(stampsNeeded(p).count)],
-        ...(what === 'letter' ? [['Same letter with a postage meter', usd(letter('current', w, true) ?? 0)] as [string, string]] : []),
+        stampRow(p),
+        ...(what === 'letter' ? [['Same letter with a postage meter (an office franking machine)', usd(letter('current', w, true) ?? 0)] as [string, string]] : []),
         [`Price ${JAN}`, `${usd(p)} (no First-Class Mail change filed)`],
       ],
+      foldLabel: 'Prices ounce by ounce',
       table: what === 'postcard' ? undefined : { caption: `First-Class Mail ${what === 'flat' ? 'large envelope' : 'letter'} prices by ounce, Notice 123.`, headers: ['Weight not over', 'Stamps', ...(what === 'letter' ? ['Meter'] : [])], rows: steps.map((o) => [`${o} oz`, usd((what === 'flat' ? largeEnvelope('current', o) : letter('current', o)) ?? 0), ...(what === 'letter' ? [usd(letter('current', o, true) ?? 0)] : [])]), align: what === 'letter' ? ['l', 'r', 'r'] : ['l', 'r'] },
     };
   }),

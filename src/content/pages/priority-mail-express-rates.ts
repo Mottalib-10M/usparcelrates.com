@@ -26,7 +26,7 @@ export default definePage({
 ${h.table(['Weight', 'Zone 1', 'Zone 5', 'Zone 8', `Zone 8 ${K.JAN}`, 'Change'], rows, 'Post Office prices of Notice 123; 2027 proposed, fuel surcharge included.', ['l', 'r', 'r', 'r', 'r', 'r'])}
 <h2>What the guarantee costs you</h2>
 <p>For the 2-pound example the guarantee costs ${K.usd(e2 - p2)} more than Priority Mail at the counter. That buys one or two days at most, and a refund if the date is missed. For a passport application, a court filing or a part a business waits on, it can be worth it. For a gift, Priority Mail usually arrives in time.</p>
-${h.mini('pme', { t: 'Express price for your package', p: ['lb', 'to'] })}
+${h.mini('pme', { t: 'Express for 5 lb to Chicago', p: ['lb', 'to'], d: { lb: 5, to: '60601' } })}
 <h2>Online, Sunday and holiday</h2>
 <p>Labels bought online pay the Commercial price, ${K.usd(e2o)} for the example. A Sunday or holiday delivery adds a premium fee listed in Notice 123. Insurance above the $100 included can be bought up to $5,000, see the ${h.a('usps-insurance-cost', 'insurance page')}. To see how much the whole filing moves your price, use the ${h.a('usps-price-increase-2027', '2027 calculator')}.</p>
 `,

@@ -21,7 +21,7 @@ export default definePage({
 <h2>The postcard stamp price for many cards</h2>
 ${h.table(['Mailing', '1 card', `${n} cards`], [['Postcard', K.usd(pc), K.usd(n * pc)], ['Card in a standard envelope, 1 oz', K.usd(st), K.usd(n * st)], ['Card in a square envelope, 1 oz', K.usd(st + nm), K.usd(n * (st + nm))]], 'First-Class Mail retail prices, Notice 123; unchanged in the January 2027 file.', ['l', 'r', 'r'])}
 <p>For a holiday mailing, the shape of the card decides more of the cost than the number of cards. A square envelope looks good on the shelf but is the dearest option; a rectangular postcard is the cheapest way to send a greeting by mail.</p>
-${h.mini('stamps', { t: 'Postcard or letter?', p: ['what'], d: { what: 'postcard' } })}
+${h.mini('stamps', { t: 'The same message in an envelope', p: ['what'], d: { what: 'letter' } })}
 <p>Count the return cards too. A reply postcard enclosed for a guest to send back needs its own postcard stamp, and a reply card in an envelope needs a letter stamp.</p>
 <h2>Check before you buy cards</h2>
 <p>A postcard has to be a rectangle of standard size and thickness, the kind sold as a postcard. Large or thick cards, or cards cut into shapes, are not postcards and pay letter or large envelope prices. When in doubt, mail it in an envelope at the letter price, or show it at a counter before you buy a stack of stamps. The ${h.a('how-much-is-a-stamp', 'stamp page')} gives the letter prices and the ${h.a('large-envelope-postage', 'large envelope page')} the prices for bigger pieces.</p>

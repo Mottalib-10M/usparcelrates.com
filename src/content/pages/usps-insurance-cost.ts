@@ -24,7 +24,7 @@ export default definePage({
 <h2>USPS insurance cost by declared value</h2>
 ${h.table(['Declared value', 'Fee with Media Mail', 'Fee with Priority Mail or Ground Advantage'], rows, 'Insurance for merchandise, Notice 123, in force today; same fees in the January 2027 file.', ['l', 'r', 'r'])}
 <p>The fee is charged on the whole value declared, not only the part above $100. A $150 item therefore pays the fee of the $100.01 to $200 band, even though $100 of it was already covered.</p>
-${h.mini('insure', { t: 'Insurance for your package', p: ['val', 'svc'] })}
+${h.mini('insure', { t: 'A $600 item by Ground Advantage', p: ['val', 'svc'], d: { val: 600, svc: 'ga' } })}
 <h2>Which service to insure</h2>
 <p>Because Priority Mail and Ground Advantage include the first $100, the cheapest insured shipment is often Ground Advantage plus the fee for the declared value. Media Mail is cheap for books, but a rare edition worth $300 pays the insurance fee on the full amount with nothing included, which narrows the saving. Priority Mail Express also includes $100 and adds a guaranteed date, which matters for time-sensitive valuables.</p>
 <h2>Insure the value, not the price paid</h2>

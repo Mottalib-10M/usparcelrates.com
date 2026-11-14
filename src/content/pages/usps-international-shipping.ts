@@ -31,7 +31,7 @@ export default definePage({
 ${h.table(['Country', 'First-Class Pkg 1 lb', 'First-Class Pkg 2 lb', 'Priority Intl 2 lb', `Priority Intl 2 lb ${K.JAN}`, 'Express Intl 2 lb'], rows, 'Post Office (retail) prices, Notice 123. January 2027 prices proposed, no fuel surcharge on international mail.', ['l', 'r', 'r', 'r', 'r', 'r'])}
 <h2>Choosing the service for a package abroad</h2>
 <p>First-Class Package International Service takes packages up to 4 pounds and is the cheapest retail service for them; a 4-pound package to Australia still costs ${K.usd(au4)}. Priority Mail International goes up to the weight limit of the country, 66 pounds for Canada and 44 for Australia, and adds flat rate envelopes and boxes. Priority Mail Express International is the fastest of the three and the dearest. Every package abroad needs a customs declaration describing its contents.</p>
-${h.mini('intl', { t: 'Your package abroad', p: ['country', 'lb'] })}
+${h.mini('intl', { t: 'The same 2 lb to Mexico', p: ['country', 'lb'], d: { country: 'Mexico' } })}
 <h2>International flat rate boxes</h2>
 <p>Priority Mail International flat rate boxes are priced by a separate list of 8 flat rate groups. The Medium box to Canada costs ${K.usd(caMed)} today whatever it weighs, up to the box limit. The 2027 file lists these boxes over the 20 package groups instead, so the site shows their price for today only.</p>
 ${h.table(['Country', 'Envelope', 'Small box', 'Medium box', 'Large box'], flatRows, 'Priority Mail International flat rate prices at the Post Office today, Notice 123.', ['l', 'r', 'r', 'r', 'r'])}

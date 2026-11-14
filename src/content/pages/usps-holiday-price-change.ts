@@ -24,7 +24,7 @@ export default definePage({
 ${h.table(['Package, counter price', 'July 2026', 'Holiday price', 'Change'], rows, 'Notice 123 files of July 2026 and of the time-limited change of October 4, 2026.', ['l', 'r', 'r', 'r'])}
 <p>Flat rate envelopes and boxes rose by a round amount, one or two dollars at the counter:</p>
 ${h.table(['Envelope or box', 'July 2026', 'Holiday price', 'Added'], flats, 'Counter prices.', ['l', 'r', 'r', 'r'])}
-${h.mini('history', { t: 'Your package: July, today, January', p: ['svc', 'lb'] })}
+${h.mini('history', { t: 'A 5 lb Priority Mail package: July, today, January', p: ['svc', 'lb'], d: { svc: 'pm', lb: 5 } })}
 <h2>Why prices moved three times in a year</h2>
 <p>The Postal Service changed its shipping prices in April 2026 with a time-limited 8% increase tied to transportation costs, again in July 2026, and once more on October 4 for the holiday season. Each change was published as a Notice 123 file on Postal Explorer, which this site keeps and compares. The holiday prices are the highest of the three, which is why a package mailed in December costs more than the same package in September. Extra services such as Certified Mail, the return receipt and insurance did not change in October.</p>
 <h2>What comes next</h2>

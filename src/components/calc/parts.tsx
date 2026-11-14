@@ -2,12 +2,16 @@
 import { useState, type ReactNode } from 'react';
 
 /** `mention`: shown above the result, e.g. "Example, not your result yet" while no field is changed (MentionExemple). */
-export function ResultCard({ label, value, sub, mention, children }: { label: string; value: string; sub?: ReactNode; mention?: ReactNode; children?: ReactNode }) {
+export function ResultCard({ label, value, sub, mention, side, answer, children }: { label: string; value: string; sub?: ReactNode; mention?: ReactNode; side?: [string, string]; answer?: string; children?: ReactNode }) {
   return (
     <div data-resultat aria-live="polite" className="rounded-lg border border-accent-200 bg-accent-50 p-4 sm:p-5">
       {mention}
       <p className="text-sm font-medium text-navy-700">{label}</p>
-      <p className="tabular-nums mt-1 font-serif text-[2.4rem] font-bold leading-tight text-navy-900">{value}</p>
+      <p className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="tabular-nums font-serif text-[2.4rem] font-bold leading-tight text-navy-900">{value}</span>
+        {side && <span data-cote className="text-base text-navy-700"><span className="tabular-nums font-semibold text-navy-900">{side[1]}</span> {side[0]}</span>}
+      </p>
+      {answer && <p data-reponse className="mt-1 text-[0.95rem] font-medium text-navy-900">{answer}</p>}
       {sub && <p className="mt-1 text-sm text-navy-700">{sub}</p>}
       {children}
     </div>

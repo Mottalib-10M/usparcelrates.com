@@ -5,7 +5,10 @@ const items = K.FLAT_ITEMS.filter((i) => i.key !== 'pm_apo');
 const rows = items.map((i) => [i.label.replace('Priority Mail ', ''), K.usd(K.flat(i.key, 'jul2026')), K.usd(K.flat(i.key)), K.usd(K.flat(i.key, 'current', 'comm')), K.usd(K.flat(i.key, 'jan2027'))]);
 const med = K.flat('pm_medium'), medJ = K.flat('pm_medium', 'jan2027'), medJb = K.flatBase('pm_medium', 'jan2027'), medJul = K.flat('pm_medium', 'jul2026');
 const be = (key: string, oz: number) => K.flatBreakEven(key, oz).zone;
-const beRows = [16, 48, 80, 160].map((oz) => [K.w(oz), be('pm_small', oz) ? `zone ${be('pm_small', oz)} and up` : 'never', be('pm_medium', oz) ? `zone ${be('pm_medium', oz)} and up` : 'never', be('pm_large', oz) ? `zone ${be('pm_large', oz)} and up` : 'never']);
+/** Testers 2026-11-14: "wins from never" and an unexplained "zone 9". */
+const beCell = (z: number | null) => (z === null ? 'in no zone' : z === 9 ? 'zone 9 only (Guam, Pacific)' : `zone ${z} and up`);
+const beRows = [16, 48, 80, 160].map((oz) => [K.w(oz), beCell(be('pm_small', oz)), beCell(be('pm_medium', oz)), beCell(be('pm_large', oz))]);
+const sz = (k: string) => K.FLAT_ITEMS.find((i) => i.key === k)!.size;
 const small = K.flat('pm_small'), large = K.flat('pm_large'), env = K.flat('pm_env'), apo = K.flat('pm_apo');
 
 export default definePage({
@@ -27,8 +30,8 @@ export default definePage({
 ${h.table(['Envelope or box', 'July 2026', 'Today', 'Today online', K.JAN], rows, 'Post Office prices unless marked online. Notice 123 files of July 2026, October 2026 and January 2027 (proposed).', ['l', 'r', 'r', 'r', 'r'])}
 <h2>Where the box starts to pay</h2>
 <p>The table gives, for a few weights, the first zone in which the box costs less than Priority Mail by weight at the counter. A 1-pound item only belongs in a Small box if it travels far; a 10-pound item in a Medium box saves money from zone ${be('pm_medium', 160)}.</p>
-${h.table(['Package weight', 'Small box wins from', 'Medium box wins from', 'Large box wins from'], beRows, 'Counter prices today, against Priority Mail by weight.', ['l', 'l', 'l', 'l'])}
-${h.mini('flat', { t: 'Your package in a flat rate box', p: ['item', 'lb'], d: { lb: 10 } })}
+${h.table(['Package weight', 'Small box wins from', 'Medium box wins from', 'Large box wins from'], beRows, `Counter prices today, against Priority Mail by weight, if the item fits: Small box ${sz('pm_small')}, Medium ${sz('pm_medium')}, Large ${sz('pm_large')}. Zone 1 is nearby, zone 8 across the country.`, ['l', 'l', 'l', 'l'])}
+${h.mini('flatenv', { t: 'Documents instead? A flat rate envelope', p: ['item', 'to'] })}
 <h2>Choosing the right box size</h2>
 <p>Start from the item, not the price. The Small box suits a phone, a book or a few jars of spices; the Medium price covers two box models, sold at one price; the Large box is for bulky but dense loads such as tools or canned goods. Any of them can be filled to 70 pounds. Fill the gaps with padding, because the box must protect its contents through the network like any parcel, then compare the box price with the price by weight in the calculator before you pay.</p>
 <p>Ground Advantage is not part of this test and can be cheaper than both, as the ${h.a('cheapest-way-to-ship-a-package', 'cheapest way page')} shows. For the per-pound prices, see ${h.a('priority-mail-rates', 'Priority Mail rates')}.</p>

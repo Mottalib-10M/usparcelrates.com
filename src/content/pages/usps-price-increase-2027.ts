@@ -24,7 +24,7 @@ export default definePage({
 <h2>The USPS price increase for common packages</h2>
 ${h.table(['Package, counter price', 'July 2026', 'Today', 'From Jan 17, 2027', 'vs today', 'vs July'], rows, 'Notice 123 files of July 2026, October 2026 and January 2027 (proposed, 11% fuel surcharge added).', ['l', 'r', 'r', 'r', 'r', 'r'])}
 <p>Two prices move in the table: the base price and the surcharge. Against July 2026, nearly every package costs more. Against today, the change is smaller, and some packages get cheaper, because today's prices carry the time-limited increase of October.</p>
-${h.mini('history', { t: 'The change for your package', p: ['svc', 'lb'] })}
+${h.mini('history', { t: 'The change for 10 lb by Priority Mail', p: ['svc', 'lb'], d: { svc: 'pm', lb: 10 } })}
 <h2>Which packages pay more, which pay less</h2>
 <p>Comparing every weight and zone of the counter tables, most Ground Advantage prices rise on January 17, while a larger share of Priority Mail and Priority Mail Express prices fall slightly, heavy packages in near zones among them. Far zones rise the most, especially for Express. A seller who ships across the country will feel the change more than one who ships within the region. Online prices follow the same pattern from a lower base.</p>
 <h2>Flat rate boxes in 2027</h2>

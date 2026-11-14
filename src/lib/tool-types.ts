@@ -8,6 +8,14 @@ export interface SelectIn { kind: 'select'; id: string; label: string; def: stri
 export type Input = NumIn | ZipIn | ChoiceIn | SelectIn;
 export interface ToolOut {
   label: string; value: string; sub?: string;
+  /** Second price printed right beside the big one: [what it is, price] (testers 2026-11-14: counter price next to the online one). */
+  side?: [string, string];
+  /** The answer in one sentence, right under the big figure (testers 2026-11-14). */
+  answer?: string;
+  /** Rows shown before the fold (default 4); the other rows and the table go into "All prices…" (testers 2026-11-14: 17 prices in a row). */
+  keep?: number;
+  /** Title of that fold. */
+  foldLabel?: string;
   /** Lines under the headline: [label, value, bar weight?]. */
   rows: Array<[string, string, number?]>;
   table?: { caption?: string; headers: string[]; rows: string[][]; align?: Array<'l' | 'r'> };
@@ -19,6 +27,8 @@ export interface ToolOut {
 export interface Profile { label: string; set: V }
 export interface ToolSpec {
   inputs: Input[]; run: (v: V) => ToolOut; profiles?: Profile[];
+  /** Title of the folded fields while they are all empty (testers 2026-11-14: "Already filled in: length 0 in" read as a wrong size). */
+  advHint?: string;
   /** Data to fetch before `run` can answer (the zone row of a ZIP Code the page does not carry). */
   pending?: (v: V) => Promise<unknown> | null;
 }

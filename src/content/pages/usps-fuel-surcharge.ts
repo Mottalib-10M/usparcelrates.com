@@ -22,7 +22,7 @@ export default definePage({
 <h2>What the USPS fuel surcharge adds</h2>
 ${h.table(['Package, counter price from Jan 17, 2027', 'Base price', 'Fuel surcharge (11%)', 'Total'], rows, 'January 2027 Notice 123 file (proposed): base price; surcharge computed at 11% and rounded to the cent.', ['l', 'r', 'r', 'r'])}
 <p>The surcharge is a percentage, so it adds more to expensive labels: a few dimes on a light package near home, several dollars on a heavy package across the country.</p>
-${h.mini('history', { t: 'Base price and surcharge for your package', p: ['svc', 'lb', 'zone'], d: { svc: 'pm' } })}
+${h.mini('history', { t: 'Base price and surcharge by Ground Advantage', p: ['svc', 'lb', 'zone'], d: { svc: 'ga', lb: 5 } })}
 <h2>How the surcharge is computed here</h2>
 <p>The January 2027 file gives each price without the surcharge. This site multiplies it by 1.11 and rounds to the nearest cent, for every weight, zone and service the surcharge covers, counter and online alike. Flat rate envelopes and boxes are treated the same way, since they are Priority Mail and Priority Mail Express products. The Postal Service may round differently at checkout; a difference of a cent is possible, and the price shown at checkout is the one you pay.</p>
 <h2>From time-limited to permanent</h2>

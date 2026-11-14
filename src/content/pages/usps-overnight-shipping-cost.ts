@@ -28,7 +28,7 @@ export default definePage({
 <p>The zone is the distance band between the two ZIP Codes: zone 1 is local, zone 4 is a regional trip, zone 8 crosses the country (Chicago to Atlanta is zone ${chi}). The table gives counter prices of Priority Mail Express, then the online price and the proposed price from January 17, 2027 in zone 8.</p>
 ${h.table(['Weight', 'Zone 1', 'Zone 4', 'Zone 8', 'Zone 8 online', `Zone 8 ${K.JAN}`], rows, 'Priority Mail Express, Notice 123. Half a pound is the first step; then by the pound.', ['l', 'r', 'r', 'r', 'r', 'r'])}
 <p>The first step is half a pound: ${K.usd(half1)} in zone 1 and ${K.usd(half8)} in zone 8 at a counter. A heavier package pays by the pound, so a 5-pound part sent overnight across the country costs several times the envelope price.</p>
-${h.mini('overnight', { t: 'Your overnight package', p: ['to', 'lb'] })}
+${h.mini('overnight', { t: 'Delivered on a Sunday or holiday', p: ['to', 'lb'], d: { day: 'sun' } })}
 <h2>Ways to pay less for a next-day package</h2>
 <p>Buy the label online: the Commercial price is lower than the counter price for every weight. Use the flat rate envelope for papers, contracts or passports, since its price does not move with distance. Weigh before you go, because the step rounds up to the next pound. If a day or two later is fine, ${h.a('priority-mail-rates', 'Priority Mail')} costs far less, with no guarantee. The guarantee itself, the refund rules and the far-zone rise of 2027 are on the ${h.a('priority-mail-express-rates', 'Priority Mail Express rates page')}.</p>
 `,

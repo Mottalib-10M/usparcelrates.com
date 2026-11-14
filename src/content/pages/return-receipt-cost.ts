@@ -22,7 +22,7 @@ export default definePage({
 <h2>Return receipt cost with Certified Mail</h2>
 ${h.table(['Piece', 'Green card', 'E-mail receipt'], [['1 oz letter, Certified Mail', K.usd(paper), K.usd(mail)], ['Return receipt fee alone', K.usd(e.return_receipt_retail), K.usd(e.return_receipt_electronic)], [`${n} letters, receipts only`, K.usd(n * e.return_receipt_retail), K.usd(n * e.return_receipt_electronic)]], 'Notice 123, extra services, in force today.', ['l', 'r', 'r'])}
 <p>The fee does not depend on the weight or the distance. It is added once per piece, on top of postage and the Certified Mail fee.</p>
-${h.mini('certified', { t: 'Total with your return receipt', p: ['rr'], d: { rr: 'email' } })}
+${h.mini('certified', { t: 'Total with the green card instead', p: ['rr'], d: { rr: 'paper' } })}
 <h2>Filling in the green card</h2>
 <p>For the paper receipt, you fill in PS Form 3811 with your address, since the card travels back to you once signed at delivery, and attach it to the piece. The electronic receipt needs only your e-mail address at the time of mailing, and it can be forwarded or printed as many times as needed. Either way, a complete return address must be printed on the piece itself.</p>
 <h2>When a receipt is worth it</h2>

@@ -28,7 +28,7 @@ export default definePage({
 <h2>Signature Confirmation cost and the other signature fees</h2>
 ${h.table(['Service', 'Today', K.JAN], rows, 'Extra services of Notice 123; the January 2027 file is proposed.', ['l', 'r', 'r'])}
 <p>The fee is per piece and does not depend on weight or zone. It is added once to the postage and to any insurance fee. The electronic price applies when the signature is bought with a label online; at a counter the retail price applies. For a seller sending many packages with a signature, the gap between the two adds up, which is one more reason to buy labels online.</p>
-${h.mini('insure', { t: 'Fees for your package', p: ['sig', 'val'], d: { sig: 'sc', val: 50 } })}
+${h.mini('insure', { t: 'Adult Signature instead', p: ['sig', 'val'], d: { sig: 'adult', val: 50 } })}
 <h2>When a signature is worth paying for</h2>
 <p>Without a signature, a package can be left at the address. A signature makes the handover explicit: useful for expensive items, for buyers who might dispute receipt, and for anything that must not be left unattended. For age-restricted goods that the law allows to be mailed, Adult Signature is the tool. The signature does not insure the contents: for that, see the ${h.a('usps-insurance-cost', 'insurance page')}. For letters, the ${h.a('certified-mail-cost', 'Certified Mail page')} is the right place.</p>
 `,

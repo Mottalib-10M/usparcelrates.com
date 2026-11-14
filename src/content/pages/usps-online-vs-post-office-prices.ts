@@ -28,7 +28,7 @@ export default definePage({
 ${h.table(['Service and weight', 'Zone 1: counter / online', 'Zone 4: counter / online', 'Zone 8: counter / online'], rows, 'Notice 123 prices in force from October 4, 2026.', ['l', 'r', 'r', 'r'])}
 <h2>What it adds up to</h2>
 <p>A seller mailing one 2-pound package a week from New York to Los Angeles by Ground Advantage would pay about ${K.usd(yr)} more a year at the counter than online. The counter has its uses: no printer needed, a clerk who checks the address and the packaging, and stamps or other errands in the same visit.</p>
-${h.mini('ga', { t: 'Counter or online for your package', p: ['ch', 'lb'], d: { ch: 'comm' } })}
+${h.mini('ga', { t: 'The same package at the counter', p: ['ch', 'lb'], d: { ch: 'retail' } })}
 <h2>Where the prices come from</h2>
 <p>Both columns are read in the Notice 123 files the Postal Service publishes on Postal Explorer, sheet by sheet: “Retail” for the counter, “Commercial” for labels. The ${h.a('method', 'method page')} lists the files and the date they were read; the ${h.a('cheapest-way-to-ship-a-package', 'cheapest way page')} adds Media Mail and flat rate boxes to the comparison.</p>
 `,

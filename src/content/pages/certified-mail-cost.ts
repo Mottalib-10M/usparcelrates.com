@@ -5,8 +5,8 @@ const e = K.extras('current'), l1 = K.letter('current', 1)!, l2 = K.letter('curr
 const flat3 = K.largeEnvelope('current', 3)!;
 const tot = (post: number, rr: number, cert = e.certified) => K.usd(post + cert + rr);
 const rows = [
-  ['1 oz letter, Certified only', tot(l1, 0)],
-  ['1 oz letter, Certified + green card', tot(l1, e.return_receipt_retail)],
+  ['1 oz letter, Certified, no receipt', tot(l1, 0)],
+  ['1 oz letter, Certified + green card (the calculator’s example)', tot(l1, e.return_receipt_retail)],
   ['1 oz letter, Certified + e-mail receipt', tot(l1, e.return_receipt_electronic)],
   ['2 oz letter, Certified + green card', tot(l2, e.return_receipt_retail)],
   ['3 oz large envelope, Certified + green card', tot(flat3, e.return_receipt_retail)],
@@ -29,9 +29,10 @@ export default definePage({
   ],
   body: (h) => `
 <h2>Certified Mail cost for common pieces</h2>
+<p>The same letter has several totals because each adds a different proof. The green card is the signed card the Postal Service mails back to you (PS Form 3811); the e-mail receipt sends you the same signature by e-mail.</p>
 ${h.table(['What you send', 'Total at the counter'], rows, 'Postage and fees of Notice 123 in force today; no change filed for January 2027.', ['l', 'r'])}
 <p>The fee is the same whatever the weight; only the postage changes. A thick envelope of papers costs more because its postage does, not because of the Certified fee.</p>
-${h.mini('certified', { t: 'Certified Mail for your letter', p: ['w', 'rr'] })}
+${h.mini('certified', { t: 'A thicker letter with the e-mail receipt', p: ['w', 'rr'], d: { w: 3, rr: 'email' } })}
 <h2>What Certified Mail proves, and what it does not</h2>
 <p>Certified Mail proves that you mailed something on a given date and, through the delivery record, that it was delivered or that delivery was attempted. It does not prove what was inside the envelope, and it travels like ordinary First-Class Mail, no faster. If the recipient refuses or never collects it, the record shows the attempt, which is often what a deadline requires. Keep the mailing receipt with a copy of the letter.</p>
 <p>Restricted Delivery is worth its higher fee only when the letter must reach one named person, not just the address: legal notices to an individual are the usual case. Adult Signature options exist for pieces that must go to someone 21 or older.</p>

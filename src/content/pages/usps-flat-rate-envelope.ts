@@ -27,7 +27,7 @@ export default definePage({
 ${h.table(['Envelope', 'Size', 'Post Office', 'Online', K.JAN], rows, 'Notice 123: Priority Mail and Priority Mail Express flat rate envelopes.', ['l', 'l', 'r', 'r', 'r'])}
 <h2>When the envelope beats the scale</h2>
 <p>The regular Priority Mail envelope wins from zone ${be(16) ?? 'none'} for a 1-pound piece and from zone ${be(32) ?? 'none'} for 2 pounds, at counter prices. Below those zones, the same piece in your own envelope costs less by weight. The calculator does the comparison for your two ZIP Codes.</p>
-${h.mini('flatenv', { t: 'Envelope or price by weight', p: ['item', 'to'] })}
+${h.mini('flatenv', { t: 'The Legal envelope, 2 lb', p: ['item', 'to'], d: { item: 'pm_legal', lb: 2 } })}
 <h2>Filling a flat rate envelope</h2>
 <p>The envelope must close with its own flap, without being stretched out of shape by its contents. A plain Priority Mail envelope without the Flat Rate marking is charged by weight and zone, like your own envelope. For bulkier things, the ${h.a('flat-rate-box-prices', 'flat rate boxes')} start with the small box, and for a guaranteed date the Express envelope is on the ${h.a('usps-overnight-shipping-cost', 'overnight shipping page')}.</p>
 `,

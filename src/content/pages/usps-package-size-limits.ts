@@ -37,7 +37,7 @@ ${h.table(['Limit', 'Rule', 'Source'], [
 ], 'Domestic Mail Manual and Notice 123, read on November 13, 2026.', ['l', 'l', 'l'])}
 <h2>A box over 108 inches</h2>
 <p>A box of 40 by 20 by 15 inches measures ${K.num(lg)} inches in length plus girth. Priority Mail does not take it (${overPm.available ? 'priced' : 'refused'}); Ground Advantage prices it at the oversized rate whatever its weight, ${K.usd(over.price)} in zone 8 at a counter. The oversized rate replaces the length and volume fees.</p>
-${h.mini('dim', { t: 'Check your box', p: ['l', 'w', 'h'], d: { l: 30, w: 18, h: 12, lb: 10 } })}
+${h.mini('dim', { t: 'A bigger box: 40 x 30 x 20 in', p: ['l', 'w', 'h'], d: { l: 40, w: 30, h: 20, lb: 25 } })}
 <h2>Before you pack a large item</h2>
 <p>Measure before you buy the box. A box that fits the item tightly keeps the length plus girth low, the size weight low and the fees away. If the item itself is long, such as a rolled poster or a fishing rod, compare a long thin tube with a squarer box: the tube may pay a length fee but stay under the size weight rule, while the squarer box may avoid the length fee but cross one cubic foot. The calculator prices both in a few seconds. Two items packed together are one parcel only if they are about the same size and fastened securely, as section 201 of the manual requires.</p>
 <p>For boxes between one and two cubic feet, the ${h.a('usps-dimensional-weight', 'dimensional weight page')} shows how the size weight raises the price. For heavy but compact items, see ${h.a('shipping-a-heavy-package', 'heavy packages')}.</p>

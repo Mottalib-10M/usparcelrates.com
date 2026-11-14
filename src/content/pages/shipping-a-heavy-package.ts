@@ -26,7 +26,7 @@ export default definePage({
 ${h.table(['Weight', 'Ground Advantage, zone 4', 'Ground Advantage, zone 8', 'Ground Advantage online, zone 8', 'Priority Mail, zone 8', 'Media Mail'], rows, 'Post Office prices unless marked online.', ['l', 'r', 'r', 'r', 'r', 'r'])}
 <h2>Pack it to arrive</h2>
 <p>The Domestic Mail Manual asks for packaging that withstands normal handling: cushion fragile items, keep the contents from shifting and brace heavy items so they do not damage other mail. A heavy box in a weak carton is the first to split. Use a double-wall box for loads near the limit and tape every seam.</p>
-${h.mini('ga', { t: 'Ground Advantage for your heavy package', p: ['lb', 'to'], d: { lb: 30 } })}
+${h.mini('ga', { t: 'A 50 lb package to Chicago', p: ['lb', 'to'], d: { lb: 50, to: '60601' } })}
 <p>Above 70 pounds, split the load. Splitting costs more: two boxes of 35 pounds cost ${K.usd(2 * K.q('ga', 8, 560))} by Ground Advantage to zone 8 at a counter, one box of 70 pounds ${K.usd(K.q('ga', 8, 1120))}. Below the limit, keep one box; above it, there is no other way. Weigh each one after packing; the price goes by the pound, any fraction counting as a full pound.</p>
 <p>If the box is large as well as heavy, check the ${h.a('usps-dimensional-weight', 'size weight')} and the ${h.a('usps-package-size-limits', 'size limits')}. The ${h.a('flat-rate-box-prices', 'flat rate page')} shows from which zone the Large box wins for your weight.</p>
 `,
