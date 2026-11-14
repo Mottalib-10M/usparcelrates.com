@@ -198,6 +198,18 @@ export function compare(o: { zone: Zone; weightOz: number; period?: Period; chan
   return list.filter((q) => q.available).sort((a, b) => a.price - b.price);
 }
 
+/**
+ * The cheapest way to mail a package by weight: Ground Advantage or Priority Mail, at the counter or with an online
+ * label. Testers 2026-11-14 (round 2): the flat rate tools compared the box with Priority Mail at the counter only,
+ * while the home page showed a cheaper Ground Advantage online label for the same package.
+ * `gaZone` = the Ground Advantage zone when it differs from the Priority Mail one (light parcels, 5-digit exceptions).
+ */
+export function cheapestByWeight(o: { zone: Zone; gaZone?: Zone; weightOz: number; period?: Period; dims?: [number, number, number] | null }): Quote | undefined {
+  const list = (['ga', 'pm'] as const).flatMap((service) => (['retail', 'comm'] as Channel[]).map((channel) =>
+    quote({ service, channel, zone: service === 'ga' ? o.gaZone ?? o.zone : o.zone, weightOz: o.weightOz, period: o.period, dims: o.dims })));
+  return list.filter((x) => x.available).sort((a, b) => a.price - b.price)[0];
+}
+
 /** The same piece across the three periods, for the price-change pages. */
 export function history(o: { service: Service; channel?: Channel; zone: Zone; weightOz: number }) {
   const q = (period: Period) => quote({ ...o, period });

@@ -34,3 +34,28 @@ describe('engine', () => {
     expect(K.q('ga', 8, 32, 'current', 'commercial')).toBeLessThanOrEqual(K.q('ga', 8, 32, 'current', 'retail'));
   });
 });
+
+/** Testers 2026-11-14 (round 3): the flat rate tools and the stamp tools must say what the reader really pays. */
+describe('flat rate and stamps tools', () => {
+  const run = (k: string, arg: Record<string, number | string> = {}) => {
+    const t = getTool(k, arg);
+    return t.run(Object.fromEntries(t.inputs.map((i) => [i.id, i.def])) as never);
+  };
+  it('the flat rate tool compares with the cheapest option of the home calculator, same package', () => {
+    const home = run('ship'), flat = run('flat');
+    expect(flat.sub).toContain(home.value);
+    expect(flat.sub).not.toMatch(/Priority Mail/);
+  });
+  it('a heavy package where the box wins still names the cheapest price by weight', () => {
+    const flat = run('flat', { lb: 10 });
+    const w = run('ship', { lb: 10 });
+    expect(flat.sub).toMatch(/^The box is the cheapest option/);
+    expect(flat.sub).toContain(w.value);
+  });
+  it('a 2 oz letter shows the two stamps it takes, worth $1.64, not the $1.11 postage', () => {
+    const o = run('stamps', { w: 2 });
+    expect(o.label).toBe('2 Forever stamps to put on it');
+    expect(o.value).toBe('$1.64');
+    expect(o.sub).toContain('$1.11');
+  });
+});

@@ -10,7 +10,7 @@
 import type { ToolSpec, V, Input, ToolOut } from './tool-types';
 import { formatMoney, formatNumber, formatPercent } from './format';
 import {
-  quote, compare, flatRate, FLAT_ITEMS, media, letter, largeEnvelope, postcard, nonmachinable, additionalOunce, stampsNeeded,
+  quote, compare, cheapestByWeight, flatRate, FLAT_ITEMS, media, letter, largeEnvelope, postcard, nonmachinable, additionalOunce, stampsNeeded,
   extras, insuranceFee, history, sundayFee, dimWeightLb, lengthGirth, SERVICE_NAME, SERVICE_SHORT, SURCHARGE, OZ, MAX_LB, ZONES,
   type Service, type Zone, type Period, type Channel, type Quote,
 } from './engine/rates';
@@ -194,16 +194,23 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
     const key = s(v, 'item'), item = FLAT_ITEMS.find((i) => i.key === key) ?? FLAT_ITEMS[4];
     const box = flatRate('current', item.key, 'retail'), boxJ = flatRate('jan2027', item.key, 'retail'), boxO = flatRate('current', item.key, 'comm');
     const oz = weightOz(v);
-    const zr = zoneOf(v, 'pm');
+    const zr = zoneOf(v, 'pm'), zg = zoneOf(v, svcKey('ga', oz));
     const rows: ToolOut['rows'] = [[`Same ${item.service === 'pm' ? 'box' : 'envelope'} ${JAN} (proposed)`, usd(boxJ.price)], ['Same, online label today', usd(boxO.price)]];
     let sub = "Any weight up to 70 lb, any zone";
-    if (zr.zone && oz > 0) {
-      const w = q(item.service, zr.zone, oz, 'current', 'retail', null);
-      if (w.available) {
-        rows.push([`${SERVICE_SHORT[item.service]} by weight, ${wLabel(oz)}, zone ${zr.zone}`, usd(w.price)]);
-        sub = w.price > box.price ? `Cheaper than paying by weight (${usd(w.price)}): the flat rate saves ${usd(w.price - box.price)}.` : `Paying by weight is cheaper here (${usd(w.price)}): the flat rate costs ${usd(box.price - w.price)} more.`;
+    if (zr.zone && zg.zone && oz > 0) {
+      // Testers 2026-11-14 (round 2): compare with the cheapest real option for this package, not Priority Mail at the counter only.
+      const w = cheapestByWeight({ zone: zr.zone, gaZone: zg.zone, weightOz: oz });
+      if (w) {
+        const how = `${SERVICE_SHORT[w.service]} ${w.channel === 'comm' ? 'with an online label' : 'at the Post Office'}`;
+        const pmR = q('pm', zr.zone, oz, 'current', 'retail', null);
+        rows.push([`Cheapest by weight: ${how}, ${wLabel(oz)}, zone ${w.zone}`, usd(w.price), w.price]);
+        if (pmR.available && !(w.service === 'pm' && w.channel === 'retail')) rows.push([`Priority Mail by weight at the Post Office`, usd(pmR.price), pmR.price]);
+        const boxBest = Math.min(box.price, boxO.price), boxHow = boxO.price < box.price ? 'with an online label' : 'at the Post Office';
+        sub = boxBest < w.price
+          ? `The box is the cheapest option for this package: ${usd(boxBest)} ${boxHow}, ${usd(w.price - boxBest)} less than the cheapest price by weight (${how}, ${usd(w.price)}).`
+          : `Cheaper by weight: ${how}, ${usd(w.price)}. The box costs ${usd(boxBest - w.price)} more (${usd(boxBest)} ${boxHow}).`;
       }
-    } else if (zr.why) rows.push(['Price by weight', zr.why]);
+    } else if (zr.why || zg.why) rows.push(['Price by weight', (zr.why ?? zg.why)!]);
     return { label: `${item.label} at the Post Office today`, value: usd(box.price), example: `Example: ${wLabel(oz)} from ${s(v, 'from')} to ${s(v, 'to')}`, sub, rows };
   }, waitZips),
 
@@ -228,19 +235,25 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
   ], arg, (v) => {
     const what = s(v, 'what'), w = Math.max(n(v, 'w'), 0.1);
     let base: number | null = what === 'postcard' ? postcard('current') : what === 'flat' ? largeEnvelope('current', w) : letter('current', w);
-    let label = what === 'postcard' ? 'Postcard stamp' : what === 'flat' ? 'Large envelope postage' : 'Letter postage';
+    let label: string = what === 'postcard' ? 'Postcard stamp' : what === 'flat' ? 'Large envelope postage' : 'Letter postage';
     if (base === null) return noZone(label, what === 'letter' ? 'Over 3.5 oz a letter pays the large envelope price: pick “Large envelope”.' : 'Over 13 oz it is a package: use Ground Advantage.');
     const extra = s(v, 'nm') === 'yes' && what === 'letter' ? nonmachinable('current') : 0;
     const total = Math.round((base + extra) * 100) / 100;
     const st = stampsNeeded(total);
+    // Testers 2026-11-14 (round 2): the big figure is what the stamps on the envelope are worth, not the postage alone.
+    const card = what === 'postcard', paid = card ? total : Math.round(st.count * st.stamp * 100) / 100;
+    if (!card) label = `${st.count} Forever stamp${st.count > 1 ? 's' : ''} to put on it`;
     return {
-      label, value: usd(total), example: `Example: a ${formatNumber(w, Number.isInteger(w) ? 0 : 1)} oz ${what === 'flat' ? 'large envelope' : what}`,
-      sub: `${st.count} Forever stamp${st.count > 1 ? 's' : ''} (${usd(st.stamp)} each)${st.overpay > 0 ? `, ${usd(st.overpay)} overpaid` : ''}`,
+      label, value: usd(paid), example: `Example: a ${formatNumber(w, Number.isInteger(w) ? 0 : 1)} oz ${what === 'flat' ? 'large envelope' : what}`,
+      sub: card ? `A postcard stamp. A Forever stamp (${usd(st.stamp)}) also pays it, with ${usd(st.overpay)} more than needed: stamps give no change.`
+        : st.overpay > 0 ? `${st.count} stamps at ${usd(st.stamp)}, worth ${usd(paid)}: stamps give no change. The postage itself is ${usd(total)}, so ${usd(st.overpay)} more than the postage.`
+        : `${st.count} stamp${st.count > 1 ? 's' : ''} at ${usd(st.stamp)}: exactly the postage.`,
       rows: [
+        ...(card ? [] : [['Postage of this envelope', usd(total)] as [string, string]]),
         ['One Forever stamp (1 oz letter)', usd(letter('current', 1)!)],
         ['Each extra ounce of a letter', usd(additionalOunce('current'))],
         ...(extra ? [['Nonmachinable surcharge included', usd(extra)] as [string, string]] : []),
-        ['Price on January 17, 2027', `${usd(total)} (stamps do not change)`],
+        ['Postage on January 17, 2027', `${usd(total)} (stamps do not change)`],
       ],
     };
   }),
