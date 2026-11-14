@@ -13,3 +13,5 @@ reports/
 data/raw/
 data-raw/
 .playwright-mcp/
+__pycache__/
+logs/
