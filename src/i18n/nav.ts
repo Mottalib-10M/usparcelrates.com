@@ -22,4 +22,4 @@ export const footerColumns = (lang: Locale): NavCategory[] => [
   { label: 'This site', links: ['home', 'method', 'about', 'contact', 'editorial', 'widget', 'terms', 'privacy', 'cookies'].map((i) => link(i, lang)) },
 ];
 /** The most asked questions, one click from any page (RECETTE §18.2). */
-export const popularLinks = (lang: Locale): NavLink[] => ['how-much-is-a-stamp', 'usps-price-increase-2027', 'flat-rate-box-prices', 'cheapest-way-to-ship-a-package', 'usps-zone-chart'].filter((id) => pageById(id)).map((id) => link(id, lang));
+export const popularLinks = (lang: Locale): NavLink[] => ['how-much-is-a-stamp', 'usps-international-shipping', 'usps-rates', 'book-of-stamps-cost', 'usps-price-increase-2027', 'flat-rate-box-prices', 'cheapest-way-to-ship-a-package', 'usps-zone-chart'].filter((id) => pageById(id)).map((id) => link(id, lang));

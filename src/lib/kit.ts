@@ -11,6 +11,8 @@ import ZALL from '../data/zones.json';
 import P from '../data/params-2026.json';
 import * as R from './engine/rates';
 import * as Zn from './zones';
+import * as IN from './engine/intl';
+import { STAMP_HISTORY, STAMP_FORMATS } from '../data/stamp-history';
 import { usd, chg, pct, longDate, EX, JAN, wLabel } from './tool-specs';
 import { formatNumber, formatDecimal } from './format';
 
@@ -36,6 +38,17 @@ export const KIT = {
   additionalOunce: R.additionalOunce, nonmachinable: R.nonmachinable, stampsNeeded: R.stampsNeeded, extras: R.extras, insuranceFee: R.insuranceFee,
   history: R.history, flatBreakEven: R.flatBreakEven, compare: R.compare, dimWeightLb: R.dimWeightLb, lengthGirth: R.lengthGirth, tier: R.tier,
   zone: zoneOf, zoneR: Zn.zoneBetween, zoneShares: Zn.zoneShares, ZONE_EFFECTIVE: Zn.ZONE_CHART_EFFECTIVE, ORIGINS: Zn.ORIGIN_COUNT, SYMMETRIC: Zn.SYMMETRIC_SHARE,
+  /** International (engine/intl.ts): K.iq('pmi', 'Canada', oz, period) throws when no price exists. */
+  iq: (s: IN.IService, country: string, oz: number, p: IN.IPeriod = 'current') => {
+    const c = IN.COUNTRIES.find((x) => x.name === country);
+    if (!c) throw new Error(`no country ${country}`);
+    const x = IN.iquote(s, c, oz, p);
+    if (!x.available) throw new Error(`no intl price ${s} ${country} ${oz} ${p}`);
+    return x.price;
+  },
+  country: (n: string) => { const c = IN.COUNTRIES.find((x) => x.name === n); if (!c) throw new Error(`no country ${n}`); return c; },
+  COUNTRIES: IN.COUNTRIES, iflat: IN.iflat, iexpressEnvelope: IN.iexpressEnvelope, iletter: IN.iletter, iflatEnvelope: IN.iflatEnvelope, ipostcard: IN.ipostcard, INAME: IN.ISERVICE_NAME,
+  STAMP_HISTORY, STAMP_FORMATS, sundayFee: R.sundayFee,
   NAME: R.SERVICE_NAME, SHORT: R.SERVICE_SHORT, FLAT_ITEMS: R.FLAT_ITEMS,
   usd, chg, pct: (x: number, d = 0) => pct(x, d), num: (x: number) => formatNumber(x, 0), dec: (x: number, d = 1) => formatDecimal(x, d), day: longDate, w: wLabel,
 };

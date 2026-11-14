@@ -1,5 +1,5 @@
 {
-  "_lisezmoi": "Registre des sources du site, relues le 2026-11-13 (curl, HTTP 200). Les prix eux-mêmes sont dans rates.json (scripts/data/build-rates.py, fichiers Notice 123 de Postal Explorer) et les zones dans zones.json (scripts/data/build-zones.py, Domestic Zone Chart).",
+  "_lisezmoi": "Registre des sources du site, relues le 2026-11-13 (curl, HTTP 200). Les prix eux-mêmes sont dans rates.json (scripts/data/build-rates.py, fichiers Notice 123 de Postal Explorer) et les zones dans zones.json (scripts/data/build-zones.py, Domestic Zone Chart). Ajouts du 2026-11-14 (WebFetch, accès normal) : imm_price_groups, letter_history, flag_stamp_2026 ; prix internationaux dans intl.json (scripts/data/build-intl.py).",
   "year": 2027,
   "retrieved_at": "2026-11-13",
   "valid_from": "2026-10-04",
@@ -99,6 +99,24 @@
       "url": "https://pe.usps.com/text/dmm300/201.htm",
       "label": {
         "en": "Domestic Mail Manual 201: physical standards (70 pounds, 108 and 130 inches in length and girth)"
+      }
+    },
+    "imm_price_groups": {
+      "url": "https://pe.usps.com/text/imm/immpg.htm",
+      "label": {
+        "en": "USPS International Mail Manual: Country Price Groups and Weight Limits (read November 14, 2026)"
+      }
+    },
+    "letter_history": {
+      "url": "https://about.usps.com/who/profile/history/domestic-letter-rates-since-1863.htm",
+      "label": {
+        "en": "USPS Historian: Rates for Domestic Letters Since 1863 (August 2026, read November 14, 2026)"
+      }
+    },
+    "flag_stamp_2026": {
+      "url": "https://about.usps.com/postal-bulletin/2026/pb22706/html/info_011.htm",
+      "label": {
+        "en": "USPS Postal Bulletin: U.S. Flag Forever stamp of June 9, 2026, formats and item numbers (read November 14, 2026)"
       }
     }
   }

@@ -11,10 +11,12 @@ import type { ToolSpec, V, Input, ToolOut } from './tool-types';
 import { formatMoney, formatNumber, formatPercent } from './format';
 import {
   quote, compare, flatRate, FLAT_ITEMS, media, letter, largeEnvelope, postcard, nonmachinable, additionalOunce, stampsNeeded,
-  extras, insuranceFee, history, dimWeightLb, lengthGirth, SERVICE_NAME, SERVICE_SHORT, SURCHARGE, OZ, MAX_LB, ZONES,
+  extras, insuranceFee, history, sundayFee, dimWeightLb, lengthGirth, SERVICE_NAME, SERVICE_SHORT, SURCHARGE, OZ, MAX_LB, ZONES,
   type Service, type Zone, type Period, type Channel, type Quote,
 } from './engine/rates';
 import { zoneBetween, loadOrigin, pendingOrigin, zip5, zip3, zoneShares, type ZoneResult } from './zones';
+import { COUNTRIES, iquote, iflat, iexpressEnvelope, iletter, iflatEnvelope, ipostcard, IFLAT_ITEMS, ISERVICE_NAME, ISERVICE_SHORT, type IService } from './engine/intl';
+import { STAMP_HISTORY, STAMP_FORMATS } from '../data/stamp-history';
 
 /** $12.40: postage is always written to the cent. */
 export const usd = (x: number) => formatMoney(x, 2);
@@ -296,6 +298,179 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
       rows: [['July 12 to October 3, 2026', usd(h.jul.price), h.jul.price], ['Today (holiday prices, to January 16, 2027)', usd(h.now.price), h.now.price], ['From January 17, 2027: base price', usd(h.jan.base)], [`Fuel surcharge (${pct(SURCHARGE)})`, usd(h.jan.surcharge)]],
     };
   }),
+  /** International: a country and a weight, the three retail services, today and from January 17, 2027. */
+  intl: (arg = {}) => spec([
+    { kind: 'select', id: 'country', label: 'Country you ship to', short: 'country', def: 'Canada', options: COUNTRIES.map((c) => ({ value: c.name, label: c.name })) },
+    LB(2), OZF(),
+  ], arg, (v) => {
+    const c = COUNTRIES.find((x) => x.name === s(v, 'country')) ?? COUNTRIES[0], oz = weightOz(v);
+    const head = `Cheapest to ${c.name} at the Post Office today`;
+    if (oz <= 0) return noZone(head, 'Enter the weight of the package.');
+    const svcs: IService[] = ['fcpis', 'pmi', 'pmei'];
+    const now = svcs.map((sv) => iquote(sv, c, oz, 'current')), jan = svcs.map((sv) => iquote(sv, c, oz, 'jan2027'));
+    const ok = now.filter((x) => x.available).sort((a, b) => a.price - b.price);
+    if (!ok.length) return noZone(head, now[1].reason ?? 'Not mailable at this weight.');
+    const best = ok[0];
+    const ip = (x: { available: boolean; price: number }) => (x.available ? usd(x.price) : 'not accepted');
+    const med = iflat('Medium Flat Rate Boxes', c);
+    return {
+      label: head, value: usd(best.price), example: `Example: a ${wLabel(oz)} package to ${c.name}`,
+      sub: `${ISERVICE_NAME[best.service]}, charged ${best.step} · retail price, customs form required`,
+      rows: [
+        ...now.map((x): [string, string, number] => [`${ISERVICE_SHORT[x.service]} today`, ip(x), x.available ? x.price : 0]),
+        ...(med !== null ? [[`Priority Mail Intl Medium Flat Rate Box today`, usd(med)] as [string, string]] : []),
+      ],
+      table: {
+        caption: `${wLabel(oz)} to ${c.name}: Post Office prices today and proposed from January 17, 2027 (no fuel surcharge on international mail).`,
+        headers: ['Service', 'Today', JAN],
+        rows: svcs.map((sv, i) => [ISERVICE_NAME[sv], ip(now[i]), ip(jan[i])]),
+        align: ['l', 'r', 'r'],
+      },
+      note: now.filter((x) => !x.available).map((x) => `${ISERVICE_SHORT[x.service]}: ${x.reason}`).join(' ') || undefined,
+    };
+  }),
+
+  /** Overnight: Priority Mail Express by ZIP Codes, with the Sunday or holiday fee and the flat rate envelope. */
+  overnight: (arg = {}) => spec([FROM(), TO(), LB(1), OZF(), { kind: 'choice', id: 'day', label: 'Delivery day', short: 'day', def: 'week', options: [{ value: 'week', label: 'Monday to Saturday' }, { value: 'sun', label: 'Sunday or holiday' }] }], arg, (v) => {
+    const oz = weightOz(v), head = 'Priority Mail Express at the Post Office today';
+    if (oz <= 0) return noZone(head, 'Enter the weight of the package.');
+    const zr = zoneOf(v, 'pm');
+    if (!zr.zone) return noZone(head, zr.why ?? '');
+    const fee = s(v, 'day') === 'sun' ? sundayFee('current') : 0;
+    const now = q('pme', zr.zone, oz, 'current', 'retail', null), onl = q('pme', zr.zone, oz, 'current', 'comm', null), jan = q('pme', zr.zone, oz, 'jan2027', 'retail', null), pm = q('pm', zr.zone, oz, 'current', 'retail', null);
+    if (!now.available) return noZone(head, now.reason ?? 'Not mailable.');
+    const env = flatRate('current', 'pme_env', 'retail').price;
+    return {
+      label: head, value: usd(now.price + fee), example: exampleShip(v),
+      sub: `${ZONE_WORD(zr.zone, zr.z)} · charged as ${now.tier.label}${fee ? ` · Sunday or holiday fee ${usd(fee)} included` : ''}`,
+      rows: [
+        ['Same label bought online today', usd(onl.price + fee), onl.price],
+        [`Flat Rate Envelope, any weight that fits`, usd(env + fee), env],
+        [`Priority Mail, 2 to 3 days, no guarantee`, price(pm), pm.available ? pm.price : 0],
+        [`Express ${JAN} (proposed, fuel surcharge in)`, usd(jan.price + fee)],
+      ],
+    };
+  }, waitZips),
+
+  /** Flat rate envelopes: one envelope against the price by weight of the same service. */
+  flatenv: (arg = {}) => spec([
+    { kind: 'select', id: 'item', label: 'Flat rate envelope', short: 'envelope', def: 'pm_env', options: FLAT_ITEMS.filter((i) => /env|legal|padded/.test(i.key)).map((i) => ({ value: i.key, label: i.label })) },
+    FROM(), TO(), LB(1), OZF(),
+  ], arg, (v) => {
+    const item = FLAT_ITEMS.find((i) => i.key === s(v, 'item')) ?? FLAT_ITEMS[0];
+    const now = flatRate('current', item.key, 'retail').price, onl = flatRate('current', item.key, 'comm').price, jan = flatRate('jan2027', item.key, 'retail').price;
+    const oz = weightOz(v), zr = zoneOf(v, 'pm');
+    const rows: ToolOut['rows'] = [['Same envelope, online label', usd(onl), onl], [`Same envelope ${JAN} (proposed)`, usd(jan), jan]];
+    let sub = `${item.size} · any weight up to 70 lb if it closes normally`;
+    if (zr.zone && oz > 0) {
+      const w = q(item.service, zr.zone, oz, 'current', 'retail', null);
+      if (w.available) { rows.push([`${SERVICE_SHORT[item.service]} by weight, zone ${zr.zone}`, usd(w.price), w.price]); sub = w.price > now ? `Envelope saves ${usd(w.price - now)} against paying by weight` : `Paying by weight is ${usd(now - w.price)} cheaper for this trip`; }
+    } else if (zr.why) rows.push(['Price by weight', zr.why]);
+    return { label: `${item.label} at the Post Office`, value: usd(now), example: `Example: ${wLabel(oz)} from ${s(v, 'from')} to ${s(v, 'to')}`, sub, rows };
+  }, waitZips),
+
+  /** Book of stamps: a format and a quantity. */
+  book: (arg = {}) => spec([
+    { kind: 'select', id: 'fmt', label: 'Format', short: 'format', def: 'booklet', options: STAMP_FORMATS.map((f) => ({ value: f.key, label: f.label })) },
+    { id: 'n', label: 'How many', short: 'quantity', def: 1, max: 50, help: 'Booklets, panes or coils' },
+  ], arg, (v) => {
+    const f = STAMP_FORMATS.find((x) => x.key === s(v, 'fmt')) ?? STAMP_FORMATS[0], n = Math.max(1, Math.round(Number(v.n) || 1));
+    const st = letter('current', 1)!, count = f.count * n, total = Math.round(count * st * 100) / 100;
+    return {
+      label: `${n} × ${f.label.toLowerCase()} of Forever stamps`, value: usd(total), example: `Example: ${n} ${f.label.toLowerCase()}`,
+      sub: `${formatNumber(count, 0)} stamps at ${usd(st)} each, the 1-ounce letter price`,
+      rows: [
+        ['One stamp', usd(st)],
+        ['Letters of 1 ounce it mails', formatNumber(count, 0)],
+        ['Postcards it mails (a Forever stamp on a card)', formatNumber(count, 0)],
+        [`Same purchase ${JAN}`, `${usd(total)} (no stamp change filed)`],
+      ],
+    };
+  }),
+
+  /** Forever stamps bought earlier: what they paid then and what they mail today. */
+  forever: (arg = {}) => spec([
+    { id: 'n', label: 'Forever stamps you have', short: 'stamps', def: 20, max: 10000 },
+    { kind: 'select', id: 'since', label: 'Price when you bought them', short: 'bought', def: '2024-07-14', options: [...STAMP_HISTORY].reverse().map((h) => ({ value: h.date, label: `${h.cents}¢ (from ${longDate(h.date)})` })) },
+  ], arg, (v) => {
+    const n = Math.max(0, Math.round(Number(v.n) || 0)), h = STAMP_HISTORY.find((x) => x.date === s(v, 'since')) ?? STAMP_HISTORY[STAMP_HISTORY.length - 2];
+    const st = letter('current', 1)!, now = Math.round(n * st * 100) / 100, paid = Math.round(n * h.cents) / 100;
+    return {
+      label: 'What your Forever stamps are worth today', value: usd(now), example: `Example: ${formatNumber(n, 0)} stamps bought at ${h.cents}¢`,
+      sub: `${formatNumber(n, 0)} letters of 1 ounce at today's ${usd(st)}`,
+      rows: [
+        ['You paid', usd(paid), paid],
+        ['Gained since', usd(Math.max(0, now - paid)), Math.max(0, now - paid)],
+        ['Rise of the stamp price', paid > 0 ? chg((st * 100 - h.cents) / h.cents) : '–'],
+        [`Worth ${JAN}`, `${usd(now)} (no stamp change filed)`],
+      ],
+    };
+  }),
+
+  /** First-Class Mail: shape, weight, stamps or meter, with the ounce table of the shape. */
+  fcm: (arg = {}) => spec([
+    { kind: 'select', id: 'what', label: 'What you mail', short: 'item', def: 'letter', options: [{ value: 'letter', label: 'Letter (up to 3.5 oz)' }, { value: 'flat', label: 'Large envelope (up to 13 oz)' }, { value: 'postcard', label: 'Postcard' }] },
+    { id: 'w', label: 'Weight in ounces', short: 'weight', def: 2, unit: 'oz', max: 13, decimals: 1, help: 'Round up: 1.2 oz pays the 2 oz price' },
+    { kind: 'choice', id: 'pay', label: 'Paid with', short: 'paid with', def: 'stamp', options: [{ value: 'stamp', label: 'Stamps' }, { value: 'meter', label: 'Postage meter' }], adv: true, help: 'Meter prices exist for letters only' },
+  ], arg, (v) => {
+    const what = s(v, 'what'), w = Math.max(n(v, 'w'), 0.1), meter = s(v, 'pay') === 'meter' && what === 'letter';
+    const p = what === 'postcard' ? postcard('current') : what === 'flat' ? largeEnvelope('current', w) : letter('current', w, meter);
+    const label = `First-Class Mail ${what === 'flat' ? 'large envelope' : what}${meter ? ', meter' : ''}`;
+    if (p === null) return noZone(label, what === 'letter' ? 'Over 3.5 oz a letter is priced as a large envelope.' : 'Over 13 oz it is a package: Ground Advantage.');
+    const steps = what === 'flat' ? [1, 2, 3, 4, 5, 6, 8, 10, 13] : [1, 2, 3, 3.5];
+    return {
+      label, value: usd(p), example: `Example: a ${formatNumber(w, Number.isInteger(w) ? 0 : 1)} oz ${what === 'flat' ? 'large envelope' : what}`,
+      sub: what === 'postcard' ? 'Postcard price, any weight within the card size' : `charged at the ${Math.ceil(w - 1e-9) > 3 && what === 'letter' ? '3.5' : formatNumber(Math.ceil(w - 1e-9), 0)} oz step`,
+      rows: [
+        ['Forever stamps to put on it', String(stampsNeeded(p).count)],
+        ...(what === 'letter' ? [['Same letter with a postage meter', usd(letter('current', w, true) ?? 0)] as [string, string]] : []),
+        [`Price ${JAN}`, `${usd(p)} (no First-Class Mail change filed)`],
+      ],
+      table: what === 'postcard' ? undefined : { caption: `First-Class Mail ${what === 'flat' ? 'large envelope' : 'letter'} prices by ounce, Notice 123.`, headers: ['Weight not over', 'Stamps', ...(what === 'letter' ? ['Meter'] : [])], rows: steps.map((o) => [`${o} oz`, usd((what === 'flat' ? largeEnvelope('current', o) : letter('current', o)) ?? 0), ...(what === 'letter' ? [usd(letter('current', o, true) ?? 0)] : [])]), align: what === 'letter' ? ['l', 'r', 'r'] : ['l', 'r'] },
+    };
+  }),
+
+  /** USPS rates: every service for a weight and a zone, counter and online. */
+  rates: (arg = {}) => spec([LB(), OZF(), ZONE_SEL(5)], arg, (v) => {
+    const oz = weightOz(v), zone = Number(s(v, 'zone')) as Zone, head = 'Lowest USPS rate at the Post Office today';
+    if (oz <= 0) return noZone(head, 'Enter the weight of the package.');
+    const all: Service[] = ['ga', 'pm', 'pme', 'media'];
+    const now = all.map((sv) => q(sv, zone, oz, 'current', 'retail', null)), onl = all.map((sv) => q(sv, zone, oz, 'current', 'comm', null)), jan = all.map((sv) => q(sv, zone, oz, 'jan2027', 'retail', null));
+    const ok = now.slice(0, 3).filter((x) => x.available).sort((a, b) => a.price - b.price);
+    if (!ok.length) return noZone(head, now[0].reason ?? 'Not mailable.');
+    return {
+      label: head, value: usd(ok[0].price), example: `Example: ${wLabel(oz)}, zone ${zone}`,
+      sub: `${SERVICE_NAME[ok[0].service]} · Media Mail apart (books and media only): ${price(now[3])}`,
+      rows: now.slice(0, 3).map((x): [string, string, number] => [`${SERVICE_SHORT[x.service]} (${DAYS[x.service]})`, price(x), x.available ? x.price : 0]),
+      table: { caption: `${wLabel(oz)} in zone ${zone}. Online = Commercial price of a label bought on usps.com; Media Mail has one price everywhere.`, headers: ['Service', 'Post Office', 'Online', `Post Office ${JAN}`], rows: all.map((sv, i) => [SERVICE_NAME[sv], price(now[i]), sv === 'media' ? price(now[i]) : price(onl[i]), price(jan[i])]), align: ['l', 'r', 'r', 'r'] },
+    };
+  }),
+
+  /** Postage for any piece: letter, large envelope or package, from one form. */
+  postage: (arg = {}) => spec([
+    { kind: 'select', id: 'what', label: 'What you send', short: 'item', def: 'package', options: [{ value: 'letter', label: 'Letter (up to 3.5 oz)' }, { value: 'flat', label: 'Large envelope (up to 13 oz)' }, { value: 'package', label: 'Package or box' }] },
+    LB(1), OZF(),
+    { ...FROM(), help: 'Packages only: letters cost the same everywhere' }, { ...TO(), help: 'Packages only' },
+  ], arg, (v) => {
+    const what = s(v, 'what'), oz = weightOz(v);
+    if (oz <= 0) return noZone('Postage today', 'Enter the weight.');
+    if (what !== 'package') {
+      const p = what === 'flat' ? largeEnvelope('current', oz) : letter('current', oz);
+      const label = what === 'flat' ? 'Large envelope postage' : 'Letter postage';
+      if (p === null) return noZone(label, what === 'letter' ? 'Over 3.5 oz: choose “Large envelope”.' : 'Over 13 oz: choose “Package or box”.');
+      const st = stampsNeeded(p);
+      return { label, value: usd(p), example: `Example: a ${wLabel(oz)} ${what === 'flat' ? 'large envelope' : 'letter'}`, sub: `${st.count} Forever stamp${st.count > 1 ? 's' : ''}, any distance in the United States`, rows: [['Forever stamp', usd(st.stamp)], [`Price ${JAN}`, `${usd(p)} (no change filed)`]] };
+    }
+    const zg = zoneOf(v, svcKey('ga', oz)), zp = zoneOf(v, 'pm');
+    if (!zg.zone || !zp.zone) return noZone('Package postage today', zg.why ?? zp.why ?? '');
+    const ga = q('ga', zg.zone, oz, 'current', 'retail', null), gaO = q('ga', zg.zone, oz, 'current', 'comm', null), pm = q('pm', zp.zone, oz, 'current', 'retail', null), gaJ = q('ga', zg.zone, oz, 'jan2027', 'retail', null);
+    if (!ga.available) return noZone('Package postage today', ga.reason ?? 'Not mailable.');
+    return {
+      label: 'Package postage at the Post Office, Ground Advantage', value: usd(ga.price), example: exampleShip(v),
+      sub: `${ZONE_WORD(zg.zone, zg.z)} · charged as ${ga.tier.label}`,
+      rows: [['Same label printed online', usd(gaO.price), gaO.price], ['Priority Mail, faster', price(pm), pm.available ? pm.price : 0], [`Ground Advantage ${JAN}`, price(gaJ)]],
+    };
+  }, waitZips),
 };
 
 export function getTool(kind: string, arg?: Arg): ToolSpec {

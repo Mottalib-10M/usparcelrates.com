@@ -164,6 +164,11 @@ export function stampsNeeded(price: number, p: Period = 'current'): { count: num
   return { count, stamp, overpay: round2(count * stamp - price) };
 }
 
+/** Footer fees of the Priority Mail Express retail sheet (Sunday/holiday delivery, size and handling fees). */
+export const pmeFees = (p: Period): Record<string, number> => data(p).pme_retail.fees;
+/** The Sunday or holiday delivery premium of Priority Mail Express. */
+export const sundayFee = (p: Period): number => Object.entries(pmeFees(p)).find(([k]) => /Sunday/.test(k))?.[1] ?? 0;
+
 /* Extra services. */
 export const extras = (p: Period): Extra => data(p).extra;
 export function insuranceFee(p: Period, value: number): number {

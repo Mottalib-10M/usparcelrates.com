@@ -7,5 +7,8 @@ export const PLANNED_GUIDES = [
   'how-much-is-a-stamp', 'how-many-stamps-do-i-need', 'postcard-stamp-price', 'large-envelope-postage',
   'certified-mail-cost', 'return-receipt-cost', 'usps-insurance-cost', 'signature-confirmation-cost',
   'usps-price-increase-2027', 'usps-fuel-surcharge', 'usps-holiday-price-change',
+  // 2026-11-14: head queries measured at the Keyword Planner (10k-100k).
+  'usps-postage-calculator', 'usps-rates', 'usps-international-shipping', 'usps-overnight-shipping-cost', 'usps-flat-rate-envelope',
+  'forever-stamp-cost', 'book-of-stamps-cost', 'first-class-postage',
 ];
 export const PLANNED_IDS = new Set<string>(PLANNED_GUIDES);
