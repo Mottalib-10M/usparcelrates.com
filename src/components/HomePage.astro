@@ -9,6 +9,7 @@ import Clamp from './Clamp.astro';
 import Tool from './Tool.astro';
 import Body from './Body.astro';
 import Fold from './Fold.astro';
+import ContentTable from './ContentTable.astro';
 import { HOME, VALUE } from '../content/home';
 import { route } from '../i18n/routes';
 import { GROUPS } from '../i18n/nav';
@@ -61,10 +62,7 @@ const doors = [
   </section>
   <figure class="mt-6 overflow-x-auto">
     <figcaption class="mb-2 text-sm font-semibold text-navy-900">A 2 lb package at a Post Office counter, by zone</figcaption>
-    <table class="w-full text-sm">
-      <thead><tr><th class="text-left">Zone</th><th class="text-right">Ground Advantage today</th><th class="text-right">Priority Mail today</th><th class="text-right">Ground Advantage {K.JAN}</th></tr></thead>
-      <tbody>{zoneRows.map((r) => <tr><td>{r[0]}</td><td class="text-right">{r[1]}</td><td class="text-right">{r[2]}</td><td class="text-right">{r[3]}</td></tr>)}</tbody>
-    </table>
+    <ContentTable headers={["Zone", "Ground Advantage today", "Priority Mail today", `Ground Advantage ${K.JAN}`]} rows={zoneRows} align={["l", "r", "r", "r"]} />
     <p class="mt-1 text-xs text-navy-600">USPS Notice 123 retail prices; January 2027 = proposed base price plus the 11% fuel surcharge.</p>
   </figure>
   <section class="mt-6"><Body html={x.start(h)} path={path} /></section>
