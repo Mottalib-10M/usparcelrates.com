@@ -105,7 +105,7 @@ function svcSpec(service: Exclude<Service, 'media'>, arg: Arg): ToolSpec {
         label: head, value: usd(now.price), example: exampleShip(v),
         sub: `${ZONE_WORD(zr.zone, zr.z)} · charged as ${now.tier.label}${now.dimLb ? ` (box size weight ${now.dimLb} lb)` : ''}`,
         rows: [
-          [`${JAN} (proposed, with the ${pct(SURCHARGE)} fuel surcharge)`, price(jan), jan.price],
+          [`${ch === 'retail' ? 'Post Office' : 'Online'} price ${JAN} (proposed, with the ${pct(SURCHARGE)} fuel surcharge)`, price(jan), jan.price],
           ['Change for this package on January 17, 2027', jan.available ? chg((jan.price - now.price) / now.price) : '–'],
           [ch === 'retail' ? 'Same label bought online today' : 'Same package at the Post Office today', price(other), other.price],
           ...(now.fees ? [['Size fees included', usd(now.fees)] as [string, string]] : []),
@@ -195,7 +195,7 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
     const box = flatRate('current', item.key, 'retail'), boxJ = flatRate('jan2027', item.key, 'retail'), boxO = flatRate('current', item.key, 'comm');
     const oz = weightOz(v);
     const zr = zoneOf(v, 'pm'), zg = zoneOf(v, svcKey('ga', oz));
-    const rows: ToolOut['rows'] = [[`Same ${item.service === 'pm' ? 'box' : 'envelope'} ${JAN} (proposed)`, usd(boxJ.price)], ['Same, online label today', usd(boxO.price)]];
+    const rows: ToolOut['rows'] = [[`Same ${item.service === 'pm' ? 'box' : 'envelope'} at the Post Office ${JAN} (proposed)`, usd(boxJ.price)], ['Same, online label today', usd(boxO.price)]];
     let sub = "Any weight up to 70 lb, any zone";
     if (zr.zone && zg.zone && oz > 0) {
       // Testers 2026-11-14 (round 2): compare with the cheapest real option for this package, not Priority Mail at the counter only.
@@ -376,7 +376,7 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
         ['Same label bought online today', usd(onl.price + fee), onl.price],
         [`Flat Rate Envelope, any weight that fits`, usd(env + fee), env],
         [`Priority Mail, 2 to 3 days, no guarantee`, price(pm), pm.available ? pm.price : 0],
-        [`Express ${JAN} (proposed, fuel surcharge in)`, usd(jan.price + fee)],
+        [`Express at the Post Office ${JAN} (proposed, fuel surcharge in)`, usd(jan.price + fee)],
       ],
     };
   }, waitZips),
@@ -389,7 +389,7 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
     const item = FLAT_ITEMS.find((i) => i.key === s(v, 'item')) ?? FLAT_ITEMS[0];
     const now = flatRate('current', item.key, 'retail').price, onl = flatRate('current', item.key, 'comm').price, jan = flatRate('jan2027', item.key, 'retail').price;
     const oz = weightOz(v), zr = zoneOf(v, 'pm');
-    const rows: ToolOut['rows'] = [['Same envelope, online label', usd(onl), onl], [`Same envelope ${JAN} (proposed)`, usd(jan), jan]];
+    const rows: ToolOut['rows'] = [[`Same envelope at the Post Office ${JAN} (proposed)`, usd(jan), jan], ['Same envelope, online label today', usd(onl), onl]];
     let sub = `${item.size} · any weight up to 70 lb if it closes normally`;
     if (zr.zone && oz > 0) {
       const w = q(item.service, zr.zone, oz, 'current', 'retail', null);
@@ -498,7 +498,7 @@ const SPECS: Record<string, (arg?: Arg) => ToolSpec> = {
     return {
       label: 'Package postage at the Post Office, Ground Advantage', value: usd(ga.price), example: exampleShip(v),
       sub: `${ZONE_WORD(zg.zone, zg.z)} · charged as ${ga.tier.label}`,
-      rows: [['Same label printed online', usd(gaO.price), gaO.price], ['Priority Mail, faster', price(pm), pm.available ? pm.price : 0], [`Ground Advantage ${JAN}`, price(gaJ)]],
+      rows: [[`Same package at the Post Office ${JAN}`, price(gaJ)], ['Same label printed online today', usd(gaO.price), gaO.price], ['Priority Mail at the Post Office, faster', price(pm), pm.available ? pm.price : 0]],
     };
   }, waitZips),
 };

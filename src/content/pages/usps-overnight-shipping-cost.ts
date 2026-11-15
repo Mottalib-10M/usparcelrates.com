@@ -6,7 +6,7 @@ const sun = K.sundayFee('current');
 const env = K.flat('pme_env'), envO = K.flat('pme_env', 'current', 'comm'), envJ = K.flat('pme_env', 'jan2027');
 const half8 = K.q('pme', 8, 8), half1 = K.q('pme', 1, 8);
 const one = (z: 1 | 4 | 8) => K.q('pme', z, 16);
-const rows = [8, 16, 48, 80].map((oz) => [K.w(oz), K.usd(K.q('pme', 1, oz)), K.usd(K.q('pme', 4, oz)), K.usd(K.q('pme', 8, oz)), K.usd(K.q('pme', 8, oz, 'current', 'comm')), K.usd(K.q('pme', 8, oz, 'jan2027'))]);
+const rows = [8, 16, 48, 80].map((oz) => [K.w(oz), K.usd(K.q('pme', 1, oz)), K.usd(K.q('pme', 4, oz)), K.usd(K.q('pme', 8, oz)), K.usd(K.q('pme', 8, oz, 'jan2027')), K.usd(K.q('pme', 8, oz, 'current', 'comm')), K.usd(K.q('pme', 8, oz, 'jan2027', 'comm'))]);
 const ex1 = K.q('pme', Z, 16), ex1o = K.q('pme', Z, 16, 'current', 'comm'), pm1 = K.q('pm', Z, 16);
 const chi = K.zone('60601', '30303');
 
@@ -26,7 +26,7 @@ export default definePage({
   body: (h) => `
 <h2>USPS overnight shipping cost by weight and zone</h2>
 <p>The zone is the distance band between the two ZIP Codes: zone 1 is local, zone 4 is a regional trip, zone 8 crosses the country (Chicago to Atlanta is zone ${chi}). The table gives counter prices of Priority Mail Express, then the online price and the proposed price from January 17, 2027 in zone 8.</p>
-${h.table(['Weight', 'Zone 1', 'Zone 4', 'Zone 8', 'Zone 8 online', `Zone 8 ${K.JAN}`], rows, 'Priority Mail Express, Notice 123. Half a pound is the first step; then by the pound.', ['l', 'r', 'r', 'r', 'r', 'r'])}
+${h.table(['Weight', 'Zone 1, Post Office', 'Zone 4, Post Office', 'Zone 8, Post Office', `Zone 8, Post Office, ${K.JAN}`, 'Zone 8, online', `Zone 8, online, ${K.JAN}`], rows, 'Priority Mail Express, Notice 123. Half a pound is the first step; then by the pound.', ['l', 'r', 'r', 'r', 'r', 'r', 'r'])}
 <p>The first step is half a pound: ${K.usd(half1)} in zone 1 and ${K.usd(half8)} in zone 8 at a counter. A heavier package pays by the pound, so a 5-pound part sent overnight across the country costs several times the envelope price.</p>
 ${h.mini('overnight', { t: 'Delivered on a Sunday or holiday', p: ['to', 'lb'], d: { day: 'sun' } })}
 <h2>Ways to pay less for a next-day package</h2>

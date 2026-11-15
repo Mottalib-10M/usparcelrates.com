@@ -2,7 +2,7 @@ import { definePage } from '../../lib/page-types';
 import { KIT as K } from '../../lib/kit';
 
 const Z = K.zone(K.EX.from, K.EX.to);
-const rows = [1, 2, 3, 5, 10, 20].map((lb) => [`${lb} lb`, K.usd(K.q('pm', 1, lb * 16)), K.usd(K.q('pm', 5, lb * 16)), K.usd(K.q('pm', 8, lb * 16)), K.usd(K.q('pm', 8, lb * 16, 'current', 'comm')), K.usd(K.q('pm', 8, lb * 16, 'jan2027'))]);
+const rows = [1, 2, 3, 5, 10, 20].map((lb) => [`${lb} lb`, K.usd(K.q('pm', 1, lb * 16)), K.usd(K.q('pm', 5, lb * 16)), K.usd(K.q('pm', 8, lb * 16)), K.usd(K.q('pm', 8, lb * 16, 'jan2027')), K.usd(K.q('pm', 8, lb * 16, 'current', 'comm')), K.usd(K.q('pm', 8, lb * 16, 'jan2027', 'comm'))]);
 const p2 = K.q('pm', Z, 32), p2o = K.q('pm', Z, 32, 'current', 'comm'), p2j = K.q('pm', Z, 32, 'jan2027'), g2 = K.q('ga', Z, 32);
 const half = K.q('pm', 8, 8, 'current', 'comm'), one = K.q('pm', 8, 16, 'current', 'comm');
 const z9 = K.q('pm', 9, 16), z8 = K.q('pm', 8, 16);
@@ -23,7 +23,7 @@ export default definePage({
   body: (h) => `
 <h2>Priority Mail rates at the counter and online</h2>
 <p>The table gives the counter price in zones 1, 5 and 8, the online price in zone 8 and the proposed zone 8 price from January 17, 2027. A pound costs little near home and a lot across the country: 20 pounds cost several times more in zone 8 than in zone 1.</p>
-${h.table(['Weight', 'Zone 1', 'Zone 5', 'Zone 8', 'Zone 8 online', `Zone 8 ${K.JAN}`], rows, 'Notice 123 prices in force from October 4, 2026; 2027 proposed, with the fuel surcharge.', ['l', 'r', 'r', 'r', 'r', 'r'])}
+${h.table(['Weight', 'Zone 1, Post Office', 'Zone 5, Post Office', 'Zone 8, Post Office', `Zone 8, Post Office, ${K.JAN}`, 'Zone 8, online', `Zone 8, online, ${K.JAN}`], rows, 'Notice 123 prices in force from October 4, 2026; 2027 proposed, with the fuel surcharge.', ['l', 'r', 'r', 'r', 'r', 'r', 'r'])}
 <h2>Priority Mail or Ground Advantage</h2>
 <p>For the 2-pound example, Priority Mail costs ${K.usd(p2 - g2)} more than Ground Advantage at the counter and saves up to three days. For light items close to home the gap is small; for heavy packages going far, it grows quickly. The ${h.a('usps-ground-advantage-rates', 'Ground Advantage page')} gives the slower price for the same trip.</p>
 ${h.mini('pm', { t: 'Priority Mail price for another weight', p: ['lb', 'to'], d: { lb: 5 } })}

@@ -2,7 +2,7 @@ import { definePage } from '../../lib/page-types';
 import { KIT as K } from '../../lib/kit';
 
 const items = K.FLAT_ITEMS.filter((i) => i.key !== 'pm_apo');
-const rows = items.map((i) => [i.label.replace('Priority Mail ', ''), K.usd(K.flat(i.key, 'jul2026')), K.usd(K.flat(i.key)), K.usd(K.flat(i.key, 'current', 'comm')), K.usd(K.flat(i.key, 'jan2027'))]);
+const rows = items.map((i) => [i.label.replace('Priority Mail ', ''), K.usd(K.flat(i.key, 'jul2026')), K.usd(K.flat(i.key)), K.usd(K.flat(i.key, 'jan2027')), K.usd(K.flat(i.key, 'current', 'comm')), K.usd(K.flat(i.key, 'jan2027', 'comm'))]);
 const med = K.flat('pm_medium'), medJ = K.flat('pm_medium', 'jan2027'), medJb = K.flatBase('pm_medium', 'jan2027'), medJul = K.flat('pm_medium', 'jul2026');
 const be = (key: string, oz: number) => K.flatBreakEven(key, oz).zone;
 /** Testers 2026-11-14: "wins from never" and an unexplained "zone 9". */
@@ -27,7 +27,7 @@ export default definePage({
   body: (h) => `
 <h2>Flat rate box prices: July 2026, today, online and 2027</h2>
 <p>The table follows each box through the three price lists of the Postal Service. Today's counter prices include the time-limited holiday change of October 4, 2026; the 2027 column is the proposed base price with the fuel surcharge.</p>
-${h.table(['Envelope or box', 'July 2026', 'Today', 'Today online', K.JAN], rows, 'Post Office prices unless marked online. Notice 123 files of July 2026, October 2026 and January 2027 (proposed).', ['l', 'r', 'r', 'r', 'r'])}
+${h.table(['Envelope or box', 'Post Office, July 2026', 'Post Office, today', `Post Office, ${K.JAN}`, 'Online, today', `Online, ${K.JAN}`], rows, 'Post Office prices unless marked online. Notice 123 files of July 2026, October 2026 and January 2027 (proposed).', ['l', 'r', 'r', 'r', 'r', 'r'])}
 <h2>Where the box starts to pay</h2>
 <p>The table gives, for a few weights, the first zone in which the box costs less than Priority Mail by weight at the counter. A 1-pound item only belongs in a Small box if it travels far; a 10-pound item in a Medium box saves money from zone ${be('pm_medium', 160)}.</p>
 ${h.table(['Package weight', 'Small box wins from', 'Medium box wins from', 'Large box wins from'], beRows, `Counter prices today, against Priority Mail by weight, if the item fits: Small box ${sz('pm_small')}, Medium ${sz('pm_medium')}, Large ${sz('pm_large')}. Zone 1 is nearby, zone 8 across the country.`, ['l', 'l', 'l', 'l'])}

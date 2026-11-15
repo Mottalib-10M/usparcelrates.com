@@ -3,7 +3,8 @@ import { KIT as K } from '../../lib/kit';
 
 const Z = K.zone(K.EX.from, K.EX.to);
 const w = [16, 48, 80, 160];
-const row = (oz: number) => [K.w(oz), K.usd(K.q('ga', Z, oz)), K.usd(K.q('pm', Z, oz)), K.usd(K.q('ga', Z, oz, 'current', 'comm')), K.usd(K.q('ga', Z, oz, 'jan2027'))];
+// Testers 2026-11-14 (round 3): each 2027 column names its channel and follows today's price of the same channel.
+const row = (oz: number) => [K.w(oz), K.usd(K.q('ga', Z, oz, 'current', 'comm')), K.usd(K.q('ga', Z, oz, 'jan2027', 'comm')), K.usd(K.q('ga', Z, oz)), K.usd(K.q('ga', Z, oz, 'jan2027')), K.usd(K.q('pm', Z, oz))];
 const ga2 = K.q('ga', Z, 32), ga2o = K.q('ga', Z, 32, 'current', 'comm');
 const near = K.zone('10001', '02108');
 const gaNear = K.q('ga', near, 32);
@@ -26,7 +27,7 @@ export default definePage({
 <h2>What the cost to ship a package is made of</h2>
 <p>Three facts set the price: the service, the weight step and the zone. Everything else is an option you add, such as insurance above the $100 included, a signature or a return receipt. The calculator above reads the zone from your ZIP Codes in the official chart, then reads the price of each service in the Notice 123 file of the Postal Service. It never estimates.</p>
 <p>The weight step differs by service. Ground Advantage under 1 pound is charged up to 4, 8, 12 or 15.999 ounces, then by the pound. Priority Mail at a counter is charged by the pound from the first ounce. Any fraction of a pound counts as a full pound: 2 pounds 1 ounce pays the 3-pound price.</p>
-${h.table(['Weight', 'Ground Advantage, Post Office', 'Priority Mail, Post Office', 'Ground Advantage, online', `Ground Advantage, ${K.JAN}`], w.map(row), `New York (10001) to Los Angeles (90012), zone ${Z}. Prices of Notice 123 in force today; 2027 proposed.`, ['l', 'r', 'r', 'r', 'r'])}
+${h.table(['Weight', 'Ground Advantage, online, today', `Ground Advantage, online, ${K.JAN}`, 'Ground Advantage, Post Office, today', `Ground Advantage, Post Office, ${K.JAN}`, 'Priority Mail, Post Office, today'], w.map(row), `New York (10001) to Los Angeles (90012), zone ${Z}. Prices of Notice 123 in force today; 2027 proposed. Compare online with online and Post Office with Post Office.`, ['l', 'r', 'r', 'r', 'r', 'r'])}
 <h2>The counter or the online label</h2>
 <p>The same package costs less with a label paid online. The gap is not a promotion: it is a second price list, called Commercial, that the Postal Service opens to anyone printing a label. On the 2-pound example, it saves ${K.usd(ga2 - ga2o)}. The ${h.a('usps-online-vs-post-office-prices', 'online or counter page')} measures the gap for each service and zone.</p>
 ${h.mini('ship', { t: 'Try another trip: from Chicago to Boston', p: ['from', 'to', 'lb'], d: { from: '60601', to: '02108', lb: 5 } })}

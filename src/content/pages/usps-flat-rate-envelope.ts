@@ -2,7 +2,7 @@ import { definePage } from '../../lib/page-types';
 import { KIT as K } from '../../lib/kit';
 
 const envs = K.FLAT_ITEMS.filter((i) => /env|legal|padded/.test(i.key));
-const rows = envs.map((i) => [i.label, i.size, K.usd(K.flat(i.key)), K.usd(K.flat(i.key, 'current', 'comm')), K.usd(K.flat(i.key, 'jan2027'))]);
+const rows = envs.map((i) => [i.label, i.size, K.usd(K.flat(i.key)), K.usd(K.flat(i.key, 'jan2027')), K.usd(K.flat(i.key, 'current', 'comm')), K.usd(K.flat(i.key, 'jan2027', 'comm'))]);
 const env = K.flat('pm_env'), envO = K.flat('pm_env', 'current', 'comm'), envJ = K.flat('pm_env', 'jan2027'), envJul = K.flat('pm_env', 'jul2026');
 const legal = K.flat('pm_legal'), padded = K.flat('pm_padded'), xenv = K.flat('pme_env');
 const be = (oz: number) => K.flatBreakEven('pm_env', oz).zone;
@@ -24,7 +24,7 @@ export default definePage({
   body: (h) => `
 <h2>USPS flat rate envelope prices by model</h2>
 <p>The table lists the six flat rate envelopes of the Notice 123 price list, with their size, the counter price today, the online price and the proposed price from January 17, 2027, fuel surcharge counted.</p>
-${h.table(['Envelope', 'Size', 'Post Office', 'Online', K.JAN], rows, 'Notice 123: Priority Mail and Priority Mail Express flat rate envelopes.', ['l', 'l', 'r', 'r', 'r'])}
+${h.table(['Envelope', 'Size', 'Post Office, today', `Post Office, ${K.JAN}`, 'Online, today', `Online, ${K.JAN}`], rows, 'Notice 123: Priority Mail and Priority Mail Express flat rate envelopes.', ['l', 'l', 'r', 'r', 'r', 'r'])}
 <h2>When the envelope beats the scale</h2>
 <p>The regular Priority Mail envelope wins from zone ${be(16) ?? 'none'} for a 1-pound piece and from zone ${be(32) ?? 'none'} for 2 pounds, at counter prices. Below those zones, the same piece in your own envelope costs less by weight. The calculator does the comparison for your two ZIP Codes.</p>
 ${h.mini('flatenv', { t: 'The Legal envelope, 2 lb', p: ['item', 'to'], d: { item: 'pm_legal', lb: 2 } })}
